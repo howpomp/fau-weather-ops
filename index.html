@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#071019">
+  <title>FAU Weather Operations</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="dashboard" aria-label="FAU game-day weather operations dashboard">
+    <header class="topbar">
+      <section class="brand-block">
+        <p class="eyebrow">FLAGLER CREDIT UNION STADIUM</p>
+        <h1>FAU WEATHER OPS</h1>
+      </section>
+      <section class="game-block">
+        <span id="game-date">GAME DAY</span>
+        <strong id="game-name">FAU HOME FOOTBALL</strong>
+      </section>
+      <section class="clock-block">
+        <span id="local-date">—</span>
+        <strong id="local-clock">--:--:--</strong>
+      </section>
+      <section class="game-state-block">
+        <span>GAME</span>
+        <strong id="game-state">NOT SET</strong>
+      </section>
+      <section class="system-block" aria-live="polite">
+        <span>SYSTEM</span>
+        <strong id="system-state" class="state loading">LOADING</strong>
+        <small id="last-refresh">Starting…</small>
+      </section>
+    </header>
+
+    <section class="observations panel" aria-labelledby="obs-title">
+      <div class="panel-title-row">
+        <h2 id="obs-title">AIRPORT OBSERVATIONS</h2>
+        <span class="source-label">NWS · MPH · °F</span>
+      </div>
+      <div class="obs-header" aria-hidden="true">
+        <span>STATION</span><span>OBS / AGE</span><span>T / TD</span><span>WIND</span><span>GUST</span><span>VIS / CIG</span><span>BARO</span><span>WX</span>
+      </div>
+      <div id="observation-rows">
+        <article class="obs-row skeleton-row"><strong>KBCT</strong><span>Loading observation…</span></article>
+        <article class="obs-row skeleton-row"><strong>KPMP</strong><span>Loading observation…</span></article>
+        <article class="obs-row skeleton-row"><strong>KFXE</strong><span>Loading observation…</span></article>
+      </div>
+    </section>
+
+    <section class="hourly panel" aria-labelledby="hourly-title">
+      <div class="panel-title-row">
+        <h2 id="hourly-title">STADIUM HOURLY FORECAST · NEXT 8 HOURS</h2>
+        <span id="forecast-state" class="source-label">NWS DIGITAL FORECAST</span>
+      </div>
+      <div class="hourly-wrap">
+        <table id="hourly-table">
+          <thead><tr><th>ELEMENT</th><th colspan="8">Loading forecast…</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <footer class="panel-meta" id="forecast-meta">Field center · awaiting source</footer>
+    </section>
+
+    <aside class="alerts panel" aria-labelledby="alerts-title">
+      <div class="panel-title-row">
+        <h2 id="alerts-title">NWS PRODUCTS</h2>
+        <span id="alerts-state" class="source-label">FIELD CENTER</span>
+      </div>
+      <section class="stadium-alert" id="stadium-alert" aria-live="polite">
+        <span class="alert-scope">STADIUM STATUS</span>
+        <strong>CHECKING ACTIVE PRODUCTS…</strong>
+      </section>
+      <div id="alert-list" class="alert-list"></div>
+      <footer class="panel-meta" id="alerts-meta">No result yet</footer>
+    </aside>
+
+    <div class="lower-main">
+    <section class="afd panel" aria-labelledby="afd-title">
+      <div class="panel-title-row">
+        <h2 id="afd-title">MFL AFD HEADLINES</h2>
+        <a id="afd-link" href="https://www.weather.gov/wrh/TextProduct?product=AFD&site=MFL" target="_blank" rel="noopener">FULL DISCUSSION ↗</a>
+      </div>
+      <div id="afd-content" class="afd-content"><p>Loading latest discussion…</p></div>
+      <footer class="panel-meta" id="afd-meta">Awaiting product</footer>
+    </section>
+
+    <section class="tropics panel" aria-labelledby="tropics-title">
+      <div class="panel-title-row">
+        <h2 id="tropics-title">ATLANTIC TROPICS</h2>
+        <a href="https://www.nhc.noaa.gov/" target="_blank" rel="noopener">NHC ↗</a>
+      </div>
+      <div id="tropical-content" class="tropical-content"><p>Checking active systems…</p></div>
+      <footer class="panel-meta" id="tropical-meta">Awaiting NHC</footer>
+    </section>
+    </div>
+
+    <nav class="quick-links" aria-label="Weather analysis links" id="quick-links"></nav>
+  </main>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
