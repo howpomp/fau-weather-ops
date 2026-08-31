@@ -229,7 +229,7 @@
     try {
       let data;
       try {
-        const local = await fetch("data/current-storms.json", { cache: "no-store" });
+        const local = await fetch(`data/current-storms.json?checked=${Date.now()}`, { cache: "no-store" });
         if (!local.ok) throw new Error("Local cache unavailable");
         data = await local.json();
       } catch (_) {
