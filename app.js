@@ -143,7 +143,7 @@
           }
           return safe(round(v));
         });
-        return `<tr><td>${row.label}</td>${values.map((v) => `<td>${safe(round(v))}</td>`).join("")}</tr>`;
+        return `<tr><td>${row.label}</td>${values.map((v) => `<td>${typeof v === "string" ? v : safe(round(v))}</td>`).join("")}</tr>`;
       }).join("");
       $("hourly-table").innerHTML = `<thead>${header}</thead><tbody>${body}</tbody>`;
       const update = p.updateTime ? new Date(p.updateTime) : null;
