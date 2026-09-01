@@ -2,6 +2,7 @@
   "use strict";
   const C = window.FAU_CONFIG;
   const API = "https://api.weather.gov";
+  const WEATHER_PROXY = "https://fau-weather-data-proxy.howpomp.chatgpt.site";
   const state = { observations: "loading", forecast: "loading", alerts: "loading", afd: "loading", tropics: "loading" };
   const $ = (id) => document.getElementById(id);
   const fmtTime = (d, options = {}) => new Intl.DateTimeFormat("en-US", { timeZone: C.stadium.timezone, hour: "numeric", minute: "2-digit", ...options }).format(d);
@@ -11,6 +12,8 @@
   const kmhToMph = (v) => v == null ? null : v * 0.621371;
   const mToMi = (v) => v == null ? null : v * 0.000621371;
   const paToInHg = (v) => v == null ? null : v * 0.0002953;
+  const hpaToInHg = (v) => v == null ? null : v * 0.029529983;
+  const ktToMph = (v) => v == null ? null : v * 1.150779;
   const round = (v) => v == null ? null : Math.round(v);
   const one = (v) => v == null ? null : Number(v).toFixed(2);
 
@@ -49,7 +52,61 @@
     return items.map((w) => [w.intensity, w.weather, w.rawString].filter(Boolean)[2] || [w.intensity, w.weather].filter(Boolean).join("")).join(" ") || "—";
   }
 
+  function awcCeiling(layers) {
+    if (!Array.isArray(layers)) return "—";
+    const layer = layers.find((x) => ["BKN", "OVC", "VV"].includes(x.cover));
+    return layer?.base == null ? "—" : `${layer.cover}${String(Math.round(layer.base / 100)).padStart(3, "0")}`;
+  }
+
+  async function loadAwcObservations() {
+    const ids = C.stations.map((station) => station.id).join(",");
+    const response = await fetch(`${WEATHER_PROXY}/metars?ids=${encodeURIComponent(ids)}`, { cache: "no-store" });
+    if (!response.ok) throw new Error(`Proxy ${response.status}`);
+    const reports = await response.json();
+    if (!Array.isArray(reports)) throw new Error("Invalid METAR response");
+    const grouped = new Map(C.stations.map((station) => [station.id, reports
+      .filter((report) => report.icaoId === station.id)
+      .sort((a, b) => Number(b.obsTime || 0) - Number(a.obsTime || 0))]));
+    if (C.stations.some((station) => !grouped.get(station.id)?.length)) throw new Error("One or more stations missing");
+
+    let anyCurrent = false;
+    const rows = C.stations.map((station) => {
+      const reportsForStation = grouped.get(station.id);
+      const p = reportsForStation[0];
+      const prior = reportsForStation[1] || {};
+      const obsTime = p.obsTime ? new Date(Number(p.obsTime) * 1000) : new Date(p.reportTime);
+      const age = dataAge(obsTime);
+      if (age.level === "current") anyCurrent = true;
+      const t = cToF(p.temp), pt = cToF(prior.temp);
+      const d = cToF(p.dewp), pd = cToF(prior.dewp);
+      const w = ktToMph(p.wspd), pw = ktToMph(prior.wspd);
+      const g = ktToMph(p.wgst), pg = ktToMph(prior.wgst);
+      const baro = hpaToInHg(p.altim), pbaro = hpaToInHg(prior.altim);
+      const direction = Number.isFinite(Number(p.wdir)) ? windCompass(Number(p.wdir)) : "VRB";
+      const visibility = p.visib == null ? "—" : `${p.visib}SM`;
+      return `<article class="obs-row ${station.primary ? "primary" : ""}">
+        <strong>${station.id}</strong>
+        <span class="obs-cell ${age.level === "current" ? "" : `data-${age.level}`}">${fmtTime(obsTime)}<small>${station.label} · ${age.label} OLD</small></span>
+        <span>${safe(round(t))}° / ${safe(round(d))}° ${trend(t, pt, C.trendThresholds.temperatureF)}</span>
+        <span>${direction} ${safe(round(w))} MPH ${trend(w, pw, C.trendThresholds.windMph)}</span>
+        <span>${g == null ? "—" : round(g)} ${trend(g, pg, C.trendThresholds.gustMph)}</span>
+        <span>${visibility} / ${awcCeiling(p.clouds)}</span>
+        <span>${safe(one(baro))} ${trend(baro, pbaro, C.trendThresholds.pressureInHg)}</span>
+        <span title="${String(p.rawOb || "").replace(/"/g, "&quot;")}">${safe(p.wxString)}</span>
+      </article>`;
+    });
+    $("observation-rows").innerHTML = rows.join("");
+    state.observations = anyCurrent ? "current" : "stale";
+    updateSystemState();
+  }
+
   async function loadObservations() {
+    try {
+      await loadAwcObservations();
+      return;
+    } catch (_) {
+      // Fall through to api.weather.gov when the AWC proxy is unavailable.
+    }
     const results = await Promise.allSettled(C.stations.map((s) => request(`${API}/stations/${s.id}/observations?limit=6`)));
     let anyCurrent = false;
     const rows = results.map((result, index) => {
@@ -228,16 +285,20 @@
   async function loadTropics() {
     try {
       let data;
+      let fetchedAt = null;
+      let sourceLabel = "NHC LIVE";
       try {
+        const live = await fetch(`${WEATHER_PROXY}/nhc`, { cache: "no-store" });
+        if (!live.ok) throw new Error("Live proxy unavailable");
+        fetchedAt = new Date(live.headers.get("x-proxy-fetched-at") || Date.now());
+        data = await live.json();
+      } catch (_) {
+        sourceLabel = "NHC CACHE";
         const local = await fetch(`data/current-storms.json?checked=${Date.now()}`, { cache: "no-store" });
         if (!local.ok) throw new Error("Local cache unavailable");
         data = await local.json();
-      } catch (_) {
-        const direct = await fetch("https://www.nhc.noaa.gov/CurrentStorms.json", { cache: "no-store" });
-        if (!direct.ok) throw new Error(`${direct.status} ${direct.statusText}`);
-        data = await direct.json();
+        fetchedAt = data._fetchedAt ? new Date(data._fetchedAt) : null;
       }
-      const fetchedAt = data._fetchedAt ? new Date(data._fetchedAt) : null;
       const cacheAgeMinutes = fetchedAt ? Math.floor((Date.now() - fetchedAt.getTime()) / 60000) : null;
       if (!fetchedAt) throw new Error("NHC cache not initialized");
       const storms = (data.activeStorms || []).filter((s) => ["at", "al", "atlantic"].includes(String(s.basin || s.id || "").slice(0, 2).toLowerCase()) || /atlantic/i.test(s.basin || ""));
@@ -248,9 +309,9 @@
         <span><small>MAX WIND</small>${safe(s.intensity)} MPH</span>
         <span><small>MOVEMENT</small>${safe(s.movementDir)} ${safe(s.movementSpeed)} MPH</span>
         <span><small>PRESSURE</small>${safe(s.pressure)} MB</span>
-        <span><small>ADVISORY</small>${safe(s.advisoryNumber)}</span>
+        <span><small>ADVISORY</small>${safe(s.advisoryNumber, safe(s.publicAdvisory?.advNum))}</span>
       </article>`).join("");
-      $("tropical-meta").textContent = `NHC CACHE ${cacheAgeMinutes}M OLD · CHECKED ${fmtTime(new Date())}`;
+      $("tropical-meta").textContent = `${sourceLabel} ${cacheAgeMinutes}M OLD · CHECKED ${fmtTime(new Date())}`;
       state.tropics = cacheAgeMinutes > 30 ? "stale" : "current";
     } catch (error) {
       $("tropical-content").innerHTML = '<p class="data-failed">NHC STATUS CACHE UNAVAILABLE · USE NHC LINK</p>';
