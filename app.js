@@ -86,7 +86,7 @@
       const visibility = p.visib == null ? "—" : `${p.visib}SM`;
       return `<article class="obs-row ${station.primary ? "primary" : ""}">
         <strong>${station.id}</strong>
-        <span class="obs-cell ${age.level === "current" ? "" : `data-${age.level}`}">${fmtTime(obsTime)}<small>${station.label} · ${age.label} OLD</small></span>
+        <span class="obs-cell ${age.level === "current" ? "" : `data-${age.level}`}">${fmtTime(obsTime)}${p.metarType === "SPECI" ? '<span class="speci-tag">SPECI</span>' : ""}<small>${station.label} · ${age.label} OLD</small></span>
         <span>${safe(round(t))}° / ${safe(round(d))}° ${trend(t, pt, C.trendThresholds.temperatureF)}</span>
         <span>${direction} ${safe(round(w))} MPH ${trend(w, pw, C.trendThresholds.windMph)}</span>
         <span>${g == null ? "—" : round(g)} ${trend(g, pg, C.trendThresholds.gustMph)}</span>
@@ -127,7 +127,7 @@
       const baro = paToInHg(p.barometricPressure?.value), pbaro = paToInHg(prior.barometricPressure?.value);
       return `<article class="obs-row ${station.primary ? "primary" : ""}">
         <strong>${station.id}</strong>
-        <span class="obs-cell ${age.level === "current" ? "" : `data-${age.level}`}">${fmtTime(obsTime)}<small>${station.label} · ${age.label} OLD</small></span>
+        <span class="obs-cell ${age.level === "current" ? "" : `data-${age.level}`}">${fmtTime(obsTime)}${/^SPECI\b/i.test(p.rawMessage || "") ? '<span class="speci-tag">SPECI</span>' : ""}<small>${station.label} · ${age.label} OLD</small></span>
         <span>${safe(round(t))}° / ${safe(round(d))}° ${trend(t, pt, C.trendThresholds.temperatureF)}</span>
         <span>${windCompass(p.windDirection?.value)} ${safe(round(w))} MPH ${trend(w, pw, C.trendThresholds.windMph)}</span>
         <span>${g == null ? "—" : round(g)} ${trend(g, pg, C.trendThresholds.gustMph)}</span>
@@ -250,7 +250,22 @@
   }
 
   function afdHeadlines(text) {
-    const clean = text.replace(/\r/g, "").split("\n").map((x) => x.trim()).filter(Boolean);
+    const rawLines = text.replace(/\r/g, "").split("\n");
+    const keyStart = rawLines.findIndex((line) => /^\s*\.?KEY MESSAGES\.*\s*$/i.test(line));
+    if (keyStart >= 0) {
+      const messages = [];
+      for (const rawLine of rawLines.slice(keyStart + 1)) {
+        const line = rawLine.trim();
+        if (line === "&&" || (/^\.[A-Z][A-Z ]+\.{3}/.test(line) && !/^\.KEY MESSAGES/i.test(line))) break;
+        if (!line || /^Updated at\b/i.test(line)) continue;
+        const bullet = line.match(/^[-•]\s+(.*)/);
+        if (bullet) messages.push(bullet[1]);
+        else if (messages.length) messages[messages.length - 1] += ` ${line}`;
+      }
+      if (messages.length) return messages.map((sentence) => ({ key: "•", sentence }));
+    }
+
+    const clean = rawLines.map((x) => x.trim()).filter(Boolean);
     const keys = ["SYNOPSIS", "SHORT TERM", "LONG TERM", "AVIATION", "MARINE", "BEACHES"];
     const found = [];
     for (const key of keys) {
