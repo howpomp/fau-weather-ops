@@ -3,21 +3,21 @@
     {
       "id": "al052026",
       "binNumber": "AT5",
-      "name": "Five",
-      "classification": "TD",
-      "intensity": "30",
-      "pressure": "1011",
-      "latitude": "28.2N",
-      "longitude": "91.5W",
-      "latitudeNumeric": 28.2,
-      "longitudeNumeric": -91.5,
+      "name": "Edouard",
+      "classification": "TS",
+      "intensity": "35",
+      "pressure": "1010",
+      "latitude": "28.4N",
+      "longitude": "91.6W",
+      "latitudeNumeric": 28.4,
+      "longitudeNumeric": -91.6,
       "movementDir": 300,
       "movementSpeed": 6,
-      "lastUpdate": "2026-08-31T21:00:00.000Z",
+      "lastUpdate": "2026-09-01T00:00:00.000Z",
       "publicAdvisory": {
-        "advNum": "002",
-        "issuance": "2026-08-31T21:00:00.000Z",
-        "fileUpdateTime": "2026-08-31T20:53:41.169Z",
+        "advNum": "002a",
+        "issuance": "2026-09-01T00:00:00.000Z",
+        "fileUpdateTime": "2026-08-31T23:50:19.326Z",
         "url": "https://www.nhc.noaa.gov/text/MIATCPAT5.shtml"
       },
       "forecastAdvisory": {
@@ -39,49 +39,49 @@
         "url": "https://www.nhc.noaa.gov/text/MIATCDAT5.shtml"
       },
       "forecastGraphics": {
-        "advNum": "002",
-        "issuance": "2026-08-31T21:00:00.000Z",
-        "fileUpdateTime": "2026-08-31T20:53:41.169Z",
+        "advNum": "002a",
+        "issuance": "2026-09-01T00:00:00.000Z",
+        "fileUpdateTime": "2026-08-31T23:50:19.326Z",
         "url": "https://www.nhc.noaa.gov/graphics_at5.shtml"
       },
       "forecastTrack": {
-        "advNum": "002",
-        "issuance": "2026-08-31T21:00:00.000Z",
-        "fileUpdateTime": "2026-08-31T21:04:40.062Z",
-        "zipFile": "https://www.nhc.noaa.gov/gis/forecast/archive/al052026_5day_002.zip",
-        "kmzFile": "https://www.nhc.noaa.gov/storm_graphics/api/AL052026_002adv_TRACK.kmz"
+        "advNum": "002a",
+        "issuance": "2026-09-01T00:00:00.000Z",
+        "fileUpdateTime": "2026-08-31T23:55:18.395Z",
+        "zipFile": "https://www.nhc.noaa.gov/gis/forecast/archive/al052026_5day_002A.zip",
+        "kmzFile": "https://www.nhc.noaa.gov/storm_graphics/api/AL052026_002Aadv_TRACK.kmz"
       },
       "windWatchesWarnings": {
-        "advNum": "002",
-        "issuance": "2026-08-31T21:00:00.000Z",
-        "fileUpdateTime": "2026-08-31T21:04:42.163Z",
-        "zipFile": "https://www.nhc.noaa.gov/gis/forecast/archive/al052026_5day_002.zip",
-        "kmzFile": "https://www.nhc.noaa.gov/storm_graphics/api/AL052026_002adv_WW.kmz"
+        "advNum": "002a",
+        "issuance": "2026-09-01T00:00:00.000Z",
+        "fileUpdateTime": "2026-08-31T23:55:20.352Z",
+        "zipFile": "https://www.nhc.noaa.gov/gis/forecast/archive/al052026_5day_002A.zip",
+        "kmzFile": "https://www.nhc.noaa.gov/storm_graphics/api/AL052026_002Aadv_WW.kmz"
       },
       "trackCone": {
-        "advNum": "002",
-        "issuance": "2026-08-31T21:00:00.000Z",
-        "fileUpdateTime": "2026-08-31T21:04:34.137Z",
-        "zipFile": "https://www.nhc.noaa.gov/gis/forecast/archive/al052026_5day_002.zip",
-        "kmzFile": "https://www.nhc.noaa.gov/storm_graphics/api/AL052026_002adv_CONE.kmz"
+        "advNum": "002a",
+        "issuance": "2026-09-01T00:00:00.000Z",
+        "fileUpdateTime": "2026-08-31T23:55:16.480Z",
+        "zipFile": "https://www.nhc.noaa.gov/gis/forecast/archive/al052026_5day_002A.zip",
+        "kmzFile": "https://www.nhc.noaa.gov/storm_graphics/api/AL052026_002Aadv_CONE.kmz"
       },
       "initialWindExtent": {
-        "advNum": "002",
-        "issuance": "2026-08-31T21:00:00.000Z",
-        "fileUpdateTime": "2026-08-31T21:05:21.149Z",
-        "zipFile": "https://www.nhc.noaa.gov/gis/forecast/archive/al052026_fcst_002.zip",
-        "kmzFile": "https://www.nhc.noaa.gov/storm_graphics/api/AL052026_initialradii_002adv.kmz"
+        "advNum": "002a",
+        "issuance": "2026-09-01T00:00:00.000Z",
+        "fileUpdateTime": "2026-08-31T23:55:48.254Z",
+        "zipFile": "https://www.nhc.noaa.gov/gis/forecast/archive/al052026_fcst_002A.zip",
+        "kmzFile": "https://www.nhc.noaa.gov/storm_graphics/api/AL052026_initialradii_002Aadv.kmz"
       },
       "forecastWindRadiiGIS": {
-        "advNum": "002",
-        "issuance": "2026-08-31T21:00:00.000Z",
-        "fileUpdateTime": "2026-08-31T21:05:15.402Z",
-        "zipFile": "https://www.nhc.noaa.gov/gis/forecast/archive/al052026_fcst_002.zip",
-        "kmzFile": "https://www.nhc.noaa.gov/storm_graphics/api/AL052026_forecastradii_002adv.kmz"
+        "advNum": "002a",
+        "issuance": "2026-09-01T00:00:00.000Z",
+        "fileUpdateTime": "2026-08-31T23:55:44.408Z",
+        "zipFile": "https://www.nhc.noaa.gov/gis/forecast/archive/al052026_fcst_002A.zip",
+        "kmzFile": "https://www.nhc.noaa.gov/storm_graphics/api/AL052026_forecastradii_002Aadv.kmz"
       },
       "bestTrackGIS": {
-        "issuance": "2026-08-31T21:00:00.000Z",
-        "fileUpdateTime": "2026-08-31T21:04:54.163Z",
+        "issuance": "2026-09-01T00:00:00.000Z",
+        "fileUpdateTime": "2026-08-31T23:55:30.008Z",
         "zipFile": "https://www.nhc.noaa.gov/gis/best_track/al052026_best_track.zip",
         "kmzFile": "https://www.nhc.noaa.gov/gis/best_track/al052026_best_track.kmz"
       },
@@ -120,10 +120,10 @@
         "zipFileTidalMask": "https://www.nhc.noaa.gov/gis/inundation/forecasts/AL0526_02_tidalmask.zip"
       },
       "peakSurgeKML": {
-        "advNum": "2",
-        "issuance": "2026-08-31T21:00:00.000Z",
-        "fileUpdateTime": "2026-08-31T21:02:05.162Z",
-        "peakSurgeKMLFile": "https://www.nhc.noaa.gov/storm_graphics/api/AL052026_PeakStormSurge_002adv.kml"
+        "advNum": "2a",
+        "issuance": "2026-09-01T00:00:00.000Z",
+        "fileUpdateTime": "2026-08-31T23:50:34.209Z",
+        "peakSurgeKMLFile": "https://www.nhc.noaa.gov/storm_graphics/api/AL052026_PeakStormSurge_002Aadv.kml"
       }
     },
     {
@@ -335,5 +335,5 @@
       "peakSurgeKML": null
     }
   ],
-  "_fetchedAt": "2026-08-31T21:55:23.460574+00:00"
+  "_fetchedAt": "2026-09-01T01:01:18.151650+00:00"
 }
