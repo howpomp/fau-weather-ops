@@ -65,6 +65,10 @@ a:hover, a:focus-visible { text-decoration: underline; }
 .obs-row strong { color: var(--blue); font-size: 17px; }
 .obs-row.primary strong { font-size: 20px; color: var(--text); }
 .obs-cell small { display: block; margin-top: 2px; color: var(--muted); font-size: 9px; }
+.speci-tag {
+  display: inline-block; margin-left: 6px; padding: 1px 4px; border: 1px solid var(--orange);
+  color: var(--orange); font: 700 8px var(--mono); letter-spacing: .06em; vertical-align: 2px;
+}
 .trend { margin-left: 4px; }
 .trend.up, .trend.down { color: var(--yellow); }
 .data-late { color: var(--yellow); }
