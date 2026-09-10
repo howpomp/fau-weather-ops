@@ -23,7 +23,7 @@
         <strong id="local-clock">--:--:--</strong>
       </section>
       <section class="game-state-block">
-        <span>GAME</span>
+        <span>NEXT EVENT</span>
         <strong id="game-state">NOT SET</strong>
       </section>
       <section class="system-block" aria-live="polite">
@@ -70,6 +70,20 @@
       <section class="stadium-alert" id="stadium-alert" aria-live="polite">
         <span class="alert-scope">STADIUM STATUS</span>
         <strong>CHECKING ACTIVE PRODUCTS…</strong>
+      </section>
+      <section class="outlooks" aria-labelledby="outlooks-title">
+        <div class="outlooks-heading">
+          <h3 id="outlooks-title">DAY 1 OUTLOOKS</h3>
+          <span id="outlooks-meta">CHECKING FIELD CENTER</span>
+        </div>
+        <div class="outlook-grid">
+          <a class="outlook-card loading" id="spc-outlook" href="https://www.spc.noaa.gov/products/outlook/day1otlk.html" target="_blank" rel="noopener">
+            <span>SPC CONVECTIVE</span><strong>CHECKING…</strong>
+          </a>
+          <a class="outlook-card loading" id="ero-outlook" href="https://www.wpc.ncep.noaa.gov/qpf/excessive_rainfall_outlook_ero.php" target="_blank" rel="noopener">
+            <span>EXCESSIVE RAIN</span><strong>CHECKING…</strong>
+          </a>
+        </div>
       </section>
       <div id="alert-list" class="alert-list"></div>
       <footer class="panel-meta" id="alerts-meta">No result yet</footer>
