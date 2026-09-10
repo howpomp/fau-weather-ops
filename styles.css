@@ -32,6 +32,7 @@ body { font-family: var(--font); overflow: hidden; }
   gap: 12px; padding: 6px 11px; background: var(--panel-alt); border-bottom: 1px solid var(--line);
 }
 h1, h2, p { margin: 0; }
+h3 { margin: 0; }
 h1 { font-size: clamp(19px, 1.3vw, 27px); letter-spacing: .06em; }
 h2 { font-size: 13px; letter-spacing: .09em; color: var(--blue); }
 a { color: var(--blue); text-decoration: none; font-size: 11px; letter-spacing: .04em; }
@@ -90,6 +91,23 @@ thead th { background: #081019; color: var(--text); font-size: 11px; }
 .stadium-alert.warning strong { color: var(--red); }
 .stadium-alert.caution strong { color: var(--yellow); }
 .stadium-alert.failed strong { color: var(--red); }
+.outlooks { border-bottom: 1px solid var(--line-strong); background: #081019; }
+.outlooks-heading { display: flex; align-items: center; justify-content: space-between; padding: 6px 12px 4px; }
+.outlooks-heading h3 { color: var(--blue); font-size: 10px; letter-spacing: .09em; }
+.outlooks-heading span { color: var(--muted); font: 8px var(--mono); letter-spacing: .03em; }
+.outlook-grid { display: grid; grid-template-columns: 1fr 1fr; }
+.outlook-card {
+  min-width: 0; padding: 7px 12px 9px; border-top: 1px solid var(--line); color: var(--text);
+}
+.outlook-card:first-child { border-right: 1px solid var(--line); }
+.outlook-card:hover, .outlook-card:focus-visible { background: var(--panel-alt); text-decoration: none; }
+.outlook-card span { display: block; color: var(--muted); font: 8px var(--mono); letter-spacing: .05em; }
+.outlook-card strong { display: block; margin-top: 3px; font: 600 12px var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.outlook-card.clear strong { color: var(--green); }
+.outlook-card.caution strong { color: var(--yellow); }
+.outlook-card.elevated strong { color: var(--orange); }
+.outlook-card.warning strong, .outlook-card.failed strong { color: var(--red); }
+.outlook-card.loading strong { color: var(--blue); }
 .alert-list { flex: 1; min-height: 0; overflow: auto; }
 .alert-item { padding: 10px 12px; border-bottom: 1px solid var(--line); }
 .alert-item strong { display: block; font: 600 13px var(--mono); }
