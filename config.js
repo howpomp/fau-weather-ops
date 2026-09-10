@@ -5,11 +5,20 @@ window.FAU_CONFIG = {
     longitude: -80.10028,
     timezone: "America/New_York"
   },
-  game: {
-    date: "SAT SEP 12 · 7:30 PM",
-    opponent: "NAVY",
-    kickoff: "2026-09-12T19:30:00-04:00"
-  },
+  events: [
+    {
+      date: "FRI SEP 11 · 7:00 PM",
+      label: "MEN'S SOCCER",
+      opponent: "CHARLOTTE",
+      kickoff: "2026-09-11T19:00:00-04:00"
+    },
+    {
+      date: "SAT SEP 12 · 7:30 PM",
+      label: "FOOTBALL",
+      opponent: "NAVY",
+      kickoff: "2026-09-12T19:30:00-04:00"
+    }
+  ],
   stations: [
     { id: "KBCT", label: "BOCA RATON", primary: true },
     { id: "KPMP", label: "POMPANO BEACH", primary: false },
@@ -20,6 +29,7 @@ window.FAU_CONFIG = {
     observations: 60000,
     forecast: 300000,
     alerts: 60000,
+    outlooks: 300000,
     afd: 300000,
     tropics: 300000
   },
