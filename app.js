@@ -3,7 +3,9 @@
   const C = window.FAU_CONFIG;
   const API = "https://api.weather.gov";
   const WEATHER_PROXY = "https://fau-weather-data-proxy.howpomp.chatgpt.site";
-  const state = { observations: "loading", forecast: "loading", alerts: "loading", afd: "loading", tropics: "loading" };
+  const SPC_DAY1 = "https://mapservices.weather.noaa.gov/vector/rest/services/outlooks/SPC_wx_outlks/FeatureServer/1";
+  const WPC_ERO_DAY1 = "https://mapservices.weather.noaa.gov/vector/rest/services/hazards/wpc_precip_hazards/MapServer/0";
+  const state = { observations: "loading", forecast: "loading", alerts: "loading", outlooks: "loading", afd: "loading", tropics: "loading" };
   const $ = (id) => document.getElementById(id);
   const fmtTime = (d, options = {}) => new Intl.DateTimeFormat("en-US", { timeZone: C.stadium.timezone, hour: "numeric", minute: "2-digit", ...options }).format(d);
   const fmtDate = (d) => new Intl.DateTimeFormat("en-US", { timeZone: C.stadium.timezone, weekday: "short", month: "short", day: "numeric", year: "numeric" }).format(d).toUpperCase();
@@ -21,6 +23,26 @@
     return fetch(url, { headers: { Accept: "application/geo+json" }, cache: "no-store" }).then((r) => {
       if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
       return r.json();
+    });
+  }
+
+  function outlookQuery(layer, outFields) {
+    const params = new URLSearchParams({
+      where: "1=1",
+      geometry: `${C.stadium.longitude},${C.stadium.latitude}`,
+      geometryType: "esriGeometryPoint",
+      inSR: "4326",
+      spatialRel: "esriSpatialRelIntersects",
+      outFields,
+      returnGeometry: "false",
+      f: "json"
+    });
+    return fetch(`${layer}/query?${params}`, { headers: { Accept: "application/json" }, cache: "no-store" }).then((r) => {
+      if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+      return r.json();
+    }).then((data) => {
+      if (data.error) throw new Error(data.error.message || "Outlook service error");
+      return data.features || [];
     });
   }
 
@@ -249,6 +271,44 @@
     updateSystemState();
   }
 
+  function setOutlook(id, label, level) {
+    const card = $(id);
+    card.className = `outlook-card ${level}`;
+    card.querySelector("strong").textContent = label;
+  }
+
+  async function loadOutlooks() {
+    const [spcResult, eroResult] = await Promise.allSettled([
+      outlookQuery(SPC_DAY1, "dn,label,label2,valid,expire,issue,idp_filedate"),
+      outlookQuery(WPC_ERO_DAY1, "dn,outlook,valid_time,issue_time,start_time,end_time,idp_filedate")
+    ]);
+
+    if (spcResult.status === "fulfilled") {
+      const feature = spcResult.value
+        .map((item) => item.attributes || {})
+        .sort((a, b) => Number(b.dn || 0) - Number(a.dn || 0))[0];
+      const code = Number(feature?.dn || 0);
+      const labels = { 2: "GENERAL TSTMS", 3: "MARGINAL", 4: "SLIGHT", 5: "ENHANCED", 6: "MODERATE", 8: "HIGH" };
+      const level = code >= 6 ? "warning" : code >= 4 ? "elevated" : code === 3 ? "caution" : "clear";
+      setOutlook("spc-outlook", labels[code] || "NONE", level);
+    } else setOutlook("spc-outlook", "UNAVAILABLE", "failed");
+
+    if (eroResult.status === "fulfilled") {
+      const feature = eroResult.value
+        .map((item) => item.attributes || {})
+        .sort((a, b) => Number(b.dn || 0) - Number(a.dn || 0))[0];
+      const code = Number(feature?.dn || 0);
+      const labels = { 1: "MARGINAL", 2: "SLIGHT", 3: "MODERATE", 4: "HIGH" };
+      const level = code >= 3 ? "warning" : code === 2 ? "elevated" : code === 1 ? "caution" : "clear";
+      setOutlook("ero-outlook", labels[code] || "NOT EXPECTED", level);
+    } else setOutlook("ero-outlook", "UNAVAILABLE", "failed");
+
+    const failures = [spcResult, eroResult].filter((result) => result.status === "rejected").length;
+    $("outlooks-meta").textContent = `${failures ? `${2 - failures}/2 SOURCES` : "SPC + WPC"} · CHECKED ${fmtTime(new Date())}`;
+    state.outlooks = failures ? "failed" : "current";
+    updateSystemState();
+  }
+
   function afdHeadlines(text) {
     const rawLines = text.replace(/\r/g, "").split("\n");
     const keyStart = rawLines.findIndex((line) => /^\s*\.?KEY MESSAGES\.*\s*$/i.test(line));
@@ -352,8 +412,12 @@
     const now = new Date();
     $("local-date").textContent = fmtDate(now);
     $("local-clock").textContent = fmtTime(now, { second: "2-digit" });
-    if (C.game.kickoff) {
-      const kickoff = new Date(C.game.kickoff);
+    const events = Array.isArray(C.events) ? C.events : (C.game ? [C.game] : []);
+    const event = events.find((item) => new Date(item.kickoff).getTime() > now.getTime() - 5 * 3600000) || events[events.length - 1];
+    if (event?.kickoff) {
+      $("game-date").textContent = event.date || "EVENT DAY";
+      $("game-name").textContent = event.opponent ? `${event.label || "FAU"} · FAU vs ${event.opponent}` : (event.label || "FAU EVENT");
+      const kickoff = new Date(event.kickoff);
       const delta = kickoff.getTime() - now.getTime();
       if (delta > 0) {
         const days = Math.floor(delta / 86400000);
@@ -366,18 +430,17 @@
   }
 
   function setupStatic() {
-    $("game-date").textContent = C.game.date || "GAME DAY";
-    $("game-name").textContent = C.game.opponent ? `FAU vs ${C.game.opponent}` : "FAU HOME FOOTBALL";
-    $("game-state").textContent = C.game.kickoff ? "CALCULATING" : "NOT SET";
+    $("game-state").textContent = (C.events?.length || C.game?.kickoff) ? "CALCULATING" : "NOT SET";
     $("quick-links").innerHTML = C.links.map((l) => `<a href="${l.url}" target="_blank" rel="noopener">${l.label}</a>`).join("");
   }
 
   function start() {
     setupStatic(); updateClock(); setInterval(updateClock, 1000);
-    loadObservations(); loadForecast(); loadAlerts(); loadAfd(); loadTropics();
+    loadObservations(); loadForecast(); loadAlerts(); loadOutlooks(); loadAfd(); loadTropics();
     setInterval(loadObservations, C.refreshMs.observations);
     setInterval(loadForecast, C.refreshMs.forecast);
     setInterval(loadAlerts, C.refreshMs.alerts);
+    setInterval(loadOutlooks, C.refreshMs.outlooks);
     setInterval(loadAfd, C.refreshMs.afd);
     setInterval(loadTropics, C.refreshMs.tropics);
   }
