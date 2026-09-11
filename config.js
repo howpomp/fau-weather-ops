@@ -35,8 +35,9 @@ window.FAU_CONFIG = {
   },
   lightning: {
     allClearMinutes: 30,
-    normalPollSeconds: 60,
-    activePollSeconds: 30
+    clearPollSeconds: 120,
+    cautionPollSeconds: 60,
+    warningPollSeconds: 30
   },
   apparentTemperature: { heatIndexAtOrAboveF: 90, windChillAtOrBelowF: 40 },
   trendThresholds: { temperatureF: 2, dewpointF: 2, windMph: 3, gustMph: 3, pressureInHg: 0.03 },
