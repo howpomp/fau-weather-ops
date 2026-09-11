@@ -9,8 +9,9 @@ const STADIUM = {
 const XWEATHER_CYCLE_DAY = 10;
 const XWEATHER_ACCESS_LIMIT = 14500; // Leave a 500-access reserve below the 15,000 limit.
 const XWEATHER_REQUEST_COST = 10;
-const NORMAL_POLL_SECONDS = 60;
-const ACTIVE_POLL_SECONDS = 30;
+const CLEAR_POLL_SECONDS = 120;
+const CAUTION_POLL_SECONDS = 60;
+const WARNING_POLL_SECONDS = 30;
 const ALL_CLEAR_MINUTES = 30;
 
 // The Worker, not the browser, enforces when paid lightning requests are allowed.
@@ -124,6 +125,13 @@ function strikeSummary(pulse, nowMs) {
   };
 }
 
+function pollingTier(nowMs, lastWithin8Ms, lastWithin15Ms) {
+  const holdMs = ALL_CLEAR_MINUTES * 60000;
+  if (lastWithin8Ms > 0 && nowMs - lastWithin8Ms < holdMs) return WARNING_POLL_SECONDS;
+  if (lastWithin15Ms > 0 && nowMs - lastWithin15Ms < holdMs) return CAUTION_POLL_SECONDS;
+  return CLEAR_POLL_SECONDS;
+}
+
 async function fetchLightning(request, env, nowMs, usage, previous, event) {
   const requestUrl = new URL(request.url);
   const providerUrl = new URL("https://data.api.xweather.com/lightning/closest");
@@ -162,7 +170,7 @@ async function fetchLightning(request, env, nowMs, usage, previous, event) {
   const newest15Ms = within15.reduce((latestMs, pulse) => Math.max(latestMs, pulseTime(pulse)), 0);
   const lastWithin8Ms = Math.max(Number(previous.lastWithin8Ms || 0), newest8Ms);
   const lastWithin15Ms = Math.max(Number(previous.lastWithin15Ms || 0), newest15Ms);
-  const elevated = lastWithin15Ms > 0 && nowMs - lastWithin15Ms < ALL_CLEAR_MINUTES * 60000;
+  const pollSeconds = pollingTier(nowMs, lastWithin8Ms, lastWithin15Ms);
 
   const nextUsage = {
     cycle: cycleKey(new Date(nowMs)),
@@ -173,7 +181,7 @@ async function fetchLightning(request, env, nowMs, usage, previous, event) {
     ...baseLightningResponse(nowMs, nextUsage, event),
     status: within8.length ? "warning" : outerRing.length ? "caution" : "clear",
     sourceFetchedAt: new Date(nowMs).toISOString(),
-    pollSeconds: elevated ? ACTIVE_POLL_SECONDS : NORMAL_POLL_SECONDS,
+    pollSeconds,
     windowMinutes: 5,
     counts: {
       within8Miles: within8.length,
@@ -208,15 +216,15 @@ async function lightning(request, env) {
     return json({
       ...baseLightningResponse(nowMs, usage, null),
       status: "off_schedule",
-      pollSeconds: NORMAL_POLL_SECONDS,
+      pollSeconds: CLEAR_POLL_SECONDS,
       nextEvent: publicEvent(nextWindow(nowMs)),
     });
   }
 
   const previous = await readJson(env.FAU_WEATHER_STATE, `lightning:${event.id}`, {});
+  const lastWithin8Ms = Number(previous.lastWithin8Ms || 0);
   const lastWithin15Ms = Number(previous.lastWithin15Ms || 0);
-  const elevated = lastWithin15Ms > 0 && nowMs - lastWithin15Ms < ALL_CLEAR_MINUTES * 60000;
-  const pollSeconds = elevated ? ACTIVE_POLL_SECONDS : NORMAL_POLL_SECONDS;
+  const pollSeconds = pollingTier(nowMs, lastWithin8Ms, lastWithin15Ms);
   const fetchedMs = Date.parse(previous.sourceFetchedAt || "");
   if (Number.isFinite(fetchedMs) && nowMs - fetchedMs < pollSeconds * 1000) {
     return json({ ...previous, checkedAt: new Date(nowMs).toISOString(), cached: true });
@@ -226,7 +234,7 @@ async function lightning(request, env) {
     return json({
       ...baseLightningResponse(nowMs, usage, event),
       status: "limit_reached",
-      pollSeconds: NORMAL_POLL_SECONDS,
+      pollSeconds: CLEAR_POLL_SECONDS,
       lastGood: previous.sourceFetchedAt ? previous : null,
     }, 429);
   }
@@ -246,7 +254,7 @@ async function lightning(request, env) {
     return json({
       ...baseLightningResponse(nowMs, usage, event),
       status: "provider_error",
-      pollSeconds: NORMAL_POLL_SECONDS,
+      pollSeconds: CLEAR_POLL_SECONDS,
       message: error instanceof Error ? error.message : "Lightning provider unavailable",
       lastGood: previous.sourceFetchedAt ? previous : null,
     }, 502);
