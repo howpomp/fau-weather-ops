@@ -33,10 +33,23 @@ The project is plain HTML, CSS and JavaScript. It can be published directly from
 
 ## Data sources
 
-- NWS API station observations
+- Aviation Weather Center METAR API through the Cloudflare proxy
 - NWS digital forecast grid
 - NWS Alerts Web Service
 - NWS text products API for the MFL Area Forecast Discussion
 - National Hurricane Center current-storm JSON feed
+- Vaisala Xweather lightning API through the Cloudflare proxy
+
+## Cloudflare Worker
+
+`cloudflare-worker.js` is the source for the `fau-weather-data-proxy` Worker. It provides `/metars`, `/nhc`, `/lightning`, and `/health` routes.
+
+The Worker requires two encrypted secrets and one KV binding:
+
+- Secret `XWEATHER_CLIENT_ID`
+- Secret `XWEATHER_CLIENT_SECRET`
+- KV namespace binding `FAU_WEATHER_STATE`
+
+Lightning requests are disabled outside the server-side `COVERAGE_WINDOWS`. During coverage, the Worker polls Xweather no more than once per 60 seconds in normal mode and once per 30 seconds after lightning is detected within 15 miles. It maintains a usage counter and stops upstream lightning requests at 14,500 monthly accesses, leaving a reserve below the 15,000-access developer limit.
 
 Each module fails independently. An alert request failure is never presented as an all-clear.
