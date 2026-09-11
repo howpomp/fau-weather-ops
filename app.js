@@ -425,7 +425,7 @@
       panel.classList.add("off-schedule");
       status.textContent = "OFF SCHEDULE";
       const next = data.nextEvent?.coverageStart ? `NEXT ${fmtTime(new Date(data.nextEvent.coverageStart))}` : "NO COVERAGE WINDOW SET";
-      $("lightning-nearest").textContent = "MONITORING OFF";
+      $("lightning-nearest").textContent = "OFF";
       $("lightning-clear").textContent = "—";
       $("lightning-meta").textContent = `${next} · ${usage}/${limit} ACCESS`;
       state.lightning = "off";
