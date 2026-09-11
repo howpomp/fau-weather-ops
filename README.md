@@ -50,6 +50,6 @@ The Worker requires two encrypted secrets and one KV binding:
 - Secret `XWEATHER_CLIENT_SECRET`
 - KV namespace binding `FAU_WEATHER_STATE`
 
-Lightning requests are disabled outside the server-side `COVERAGE_WINDOWS`. During coverage, the Worker polls Xweather no more than once per 60 seconds in normal mode and once per 30 seconds after lightning is detected within 15 miles. It maintains a usage counter and stops upstream lightning requests at 14,500 monthly accesses, leaving a reserve below the 15,000-access developer limit.
+Lightning requests are disabled outside the server-side `COVERAGE_WINDOWS`. During coverage, the Worker uses three polling tiers: once per 120 seconds when the 15-mile area is clear, once per 60 seconds after lightning is detected from 8–15 miles, and once per 30 seconds after lightning is detected within 8 miles. Each faster tier remains active until its ring has been clear for 30 minutes. The Worker maintains a usage counter and stops upstream lightning requests at 14,500 monthly accesses, leaving a reserve below the 15,000-access developer limit.
 
 Each module fails independently. An alert request failure is never presented as an all-clear.
