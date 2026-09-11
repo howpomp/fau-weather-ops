@@ -93,11 +93,12 @@ thead th { background: #081019; color: var(--text); font-size: 11px; }
 .lightning-ops.caution .lightning-heading strong { color: var(--yellow); }
 .lightning-ops.off-schedule .lightning-heading strong { color: var(--muted); }
 .lightning-ops.failed .lightning-heading strong { color: var(--red); }
-.lightning-grid { display: grid; grid-template-columns: .75fr .75fr 1.25fr 1.25fr; border-top: 1px solid var(--line); }
+.lightning-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid var(--line); }
 .lightning-grid > div { min-width: 0; padding: 7px 9px; border-right: 1px solid var(--line); }
-.lightning-grid > div:last-child { border-right: 0; }
+.lightning-grid > div:nth-child(2n) { border-right: 0; }
+.lightning-grid > div:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
 .lightning-grid span { display: block; color: var(--muted); font: 8px var(--mono); letter-spacing: .04em; }
-.lightning-grid strong { display: block; margin-top: 3px; font: 600 12px var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lightning-grid strong { display: block; margin-top: 3px; font: 600 12px var(--mono); white-space: normal; overflow-wrap: anywhere; }
 .lightning-ring strong { color: var(--green); font-size: 15px; }
 .lightning-ring.warning strong { color: var(--red); }
 .lightning-ring.caution strong { color: var(--yellow); }
