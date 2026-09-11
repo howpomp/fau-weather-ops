@@ -2,10 +2,12 @@
   "use strict";
   const C = window.FAU_CONFIG;
   const API = "https://api.weather.gov";
-  const WEATHER_PROXY = "https://fau-weather-data-proxy.howpomp.chatgpt.site";
+  const WEATHER_PROXY = "https://fau-weather-data-proxy.howpomp.workers.dev";
   const SPC_DAY1 = "https://mapservices.weather.noaa.gov/vector/rest/services/outlooks/SPC_wx_outlks/FeatureServer/1";
   const WPC_ERO_DAY1 = "https://mapservices.weather.noaa.gov/vector/rest/services/hazards/wpc_precip_hazards/MapServer/0";
-  const state = { observations: "loading", forecast: "loading", alerts: "loading", outlooks: "loading", afd: "loading", tropics: "loading" };
+  const state = { observations: "loading", forecast: "loading", alerts: "loading", outlooks: "loading", afd: "loading", tropics: "loading", lightning: "loading" };
+  let lightningTimer = null;
+  let lastLightningData = null;
   const $ = (id) => document.getElementById(id);
   const fmtTime = (d, options = {}) => new Intl.DateTimeFormat("en-US", { timeZone: C.stadium.timezone, hour: "numeric", minute: "2-digit", ...options }).format(d);
   const fmtDate = (d) => new Intl.DateTimeFormat("en-US", { timeZone: C.stadium.timezone, weekday: "short", month: "short", day: "numeric", year: "numeric" }).format(d).toUpperCase();
@@ -396,6 +398,92 @@
     updateSystemState();
   }
 
+  function lightningAge(seconds) {
+    if (!Number.isFinite(Number(seconds))) return "—";
+    const value = Math.max(0, Math.round(Number(seconds)));
+    return value < 60 ? `${value}S AGO` : `${Math.floor(value / 60)}M AGO`;
+  }
+
+  function renderLightning(data) {
+    lastLightningData = data;
+    const panel = $("lightning-ops");
+    const status = $("lightning-status");
+    const ring8 = $("lightning-ring-8");
+    const ring15 = $("lightning-ring-15");
+    const count8 = Number(data?.counts?.within8Miles || 0);
+    const count15 = Number(data?.counts?.from8To15Miles || 0);
+    const usage = Number(data?.usage?.accesses || 0).toLocaleString();
+    const limit = Number(data?.usage?.safetyLimit || 14500).toLocaleString();
+
+    panel.className = "lightning-ops";
+    ring8.className = `lightning-ring${count8 ? " warning" : ""}`;
+    ring15.className = `lightning-ring${count15 ? " caution" : ""}`;
+    ring8.querySelector("strong").textContent = data.counts ? String(count8) : "—";
+    ring15.querySelector("strong").textContent = data.counts ? String(count15) : "—";
+
+    if (data.status === "off_schedule") {
+      panel.classList.add("off-schedule");
+      status.textContent = "OFF SCHEDULE";
+      const next = data.nextEvent?.coverageStart ? `NEXT ${fmtTime(new Date(data.nextEvent.coverageStart))}` : "NO COVERAGE WINDOW SET";
+      $("lightning-nearest").textContent = "MONITORING OFF";
+      $("lightning-clear").textContent = "—";
+      $("lightning-meta").textContent = `${next} · ${usage}/${limit} ACCESS`;
+      state.lightning = "off";
+      return;
+    }
+
+    if (["limit_reached", "configuration_error", "provider_error"].includes(data.status)) {
+      panel.classList.add("failed");
+      status.textContent = data.status === "limit_reached" ? "USAGE LIMIT REACHED" : "DATA UNAVAILABLE";
+      $("lightning-nearest").textContent = "VERIFY ALTERNATE SOURCE";
+      $("lightning-clear").textContent = "—";
+      $("lightning-meta").textContent = `${String(data.message || data.status).toUpperCase()} · ${usage}/${limit} ACCESS`;
+      state.lightning = "failed";
+      return;
+    }
+
+    panel.classList.add(data.status === "warning" ? "warning" : data.status === "caution" ? "caution" : "clear");
+    status.textContent = data.status === "warning" ? "STRIKE WITHIN 8 MI" : data.status === "caution" ? "STRIKE WITHIN 15 MI" : "CLEAR · MONITORING";
+    const nearest = data.nearest;
+    const nearestAge = nearest?.timestamp ? (Date.now() - Date.parse(nearest.timestamp)) / 1000 : nearest?.ageSeconds;
+    $("lightning-nearest").textContent = nearest
+      ? `${Number(nearest.distanceMiles).toFixed(1)} MI ${nearest.direction || ""} · ${lightningAge(nearestAge)}`
+      : "NONE · LAST 5 MIN";
+
+    const allClearMs = Date.parse(data.allClearAt || "");
+    if (Number.isFinite(allClearMs)) {
+      const remaining = Math.max(0, Math.ceil((allClearMs - Date.now()) / 1000));
+      $("lightning-clear").textContent = remaining
+        ? `${String(Math.floor(remaining / 60)).padStart(2, "0")}:${String(remaining % 60).padStart(2, "0")}`
+        : "ELIGIBLE";
+    } else {
+      $("lightning-clear").textContent = "NO 8-MI STRIKES";
+    }
+    const sourceAge = data.sourceFetchedAt ? lightningAge((Date.now() - Date.parse(data.sourceFetchedAt)) / 1000) : "UNKNOWN";
+    $("lightning-meta").textContent = `5-MIN WINDOW · UPDATED ${sourceAge} · ${data.pollSeconds || 60}S MODE · ${usage}/${limit}`;
+    state.lightning = "current";
+  }
+
+  async function loadLightning() {
+    let nextSeconds = C.lightning?.normalPollSeconds || 60;
+    try {
+      const response = await fetch(`${WEATHER_PROXY}/lightning`, { cache: "no-store" });
+      const data = await response.json();
+      if (!response.ok && !data?.status) throw new Error(`Proxy ${response.status}`);
+      renderLightning(data);
+      nextSeconds = Number(data.pollSeconds) || nextSeconds;
+    } catch (error) {
+      renderLightning({
+        status: "provider_error",
+        message: error.message,
+        usage: { accesses: 0, safetyLimit: 14500 },
+      });
+    }
+    updateSystemState();
+    clearTimeout(lightningTimer);
+    lightningTimer = setTimeout(loadLightning, Math.max(30, nextSeconds) * 1000);
+  }
+
   function updateSystemState() {
     const critical = [state.observations, state.forecast, state.alerts];
     let overall = "current";
@@ -412,6 +500,9 @@
     const now = new Date();
     $("local-date").textContent = fmtDate(now);
     $("local-clock").textContent = fmtTime(now, { second: "2-digit" });
+    if (lastLightningData && !["off_schedule", "provider_error", "configuration_error", "limit_reached"].includes(lastLightningData.status)) {
+      renderLightning(lastLightningData);
+    }
     const events = Array.isArray(C.events) ? C.events : (C.game ? [C.game] : []);
     const event = events.find((item) => new Date(item.kickoff).getTime() > now.getTime() - 5 * 3600000) || events[events.length - 1];
     if (event?.kickoff) {
@@ -436,7 +527,7 @@
 
   function start() {
     setupStatic(); updateClock(); setInterval(updateClock, 1000);
-    loadObservations(); loadForecast(); loadAlerts(); loadOutlooks(); loadAfd(); loadTropics();
+    loadObservations(); loadForecast(); loadAlerts(); loadOutlooks(); loadAfd(); loadTropics(); loadLightning();
     setInterval(loadObservations, C.refreshMs.observations);
     setInterval(loadForecast, C.refreshMs.forecast);
     setInterval(loadAlerts, C.refreshMs.alerts);
