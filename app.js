@@ -465,7 +465,7 @@
   }
 
   async function loadLightning() {
-    let nextSeconds = C.lightning?.normalPollSeconds || 60;
+    let nextSeconds = C.lightning?.clearPollSeconds || 120;
     try {
       const response = await fetch(`${WEATHER_PROXY}/lightning`, { cache: "no-store" });
       const data = await response.json();
