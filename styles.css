@@ -85,6 +85,24 @@ th:last-child, td:last-child { border-right: 0; }
 tbody tr:last-child td { border-bottom: 0; }
 thead th { background: #081019; color: var(--text); font-size: 11px; }
 .alerts { grid-column: 2; grid-row: 3 / 5; display: flex; flex-direction: column; }
+.lightning-ops { border-bottom: 1px solid var(--line-strong); background: #081019; }
+.lightning-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 12px; }
+.lightning-heading h3 { color: var(--blue); font-size: 10px; letter-spacing: .09em; }
+.lightning-heading strong { color: var(--green); font: 600 10px var(--mono); text-align: right; }
+.lightning-ops.warning .lightning-heading strong { color: var(--red); }
+.lightning-ops.caution .lightning-heading strong { color: var(--yellow); }
+.lightning-ops.off-schedule .lightning-heading strong { color: var(--muted); }
+.lightning-ops.failed .lightning-heading strong { color: var(--red); }
+.lightning-grid { display: grid; grid-template-columns: .75fr .75fr 1.25fr 1.25fr; border-top: 1px solid var(--line); }
+.lightning-grid > div { min-width: 0; padding: 7px 9px; border-right: 1px solid var(--line); }
+.lightning-grid > div:last-child { border-right: 0; }
+.lightning-grid span { display: block; color: var(--muted); font: 8px var(--mono); letter-spacing: .04em; }
+.lightning-grid strong { display: block; margin-top: 3px; font: 600 12px var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lightning-ring strong { color: var(--green); font-size: 15px; }
+.lightning-ring.warning strong { color: var(--red); }
+.lightning-ring.caution strong { color: var(--yellow); }
+.lightning-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 9px; border-top: 1px solid var(--line); color: var(--muted); font: 8px var(--mono); }
+.lightning-meta a { flex: 0 0 auto; font-size: 8px; }
 .stadium-alert { padding: 12px; border-bottom: 1px solid var(--line-strong); }
 .stadium-alert .alert-scope { display: block; color: var(--muted); font: 9px var(--mono); margin-bottom: 4px; }
 .stadium-alert strong { font: 600 15px var(--mono); color: var(--green); }
