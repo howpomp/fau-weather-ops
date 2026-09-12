@@ -514,7 +514,7 @@
       $("game-name").textContent = event.opponent ? `${event.label || "FAU"} · FAU vs ${event.opponent}` : (event.label || "FAU EVENT");
       const kickoff = new Date(event.kickoff);
       const delta = kickoff.getTime() - now.getTime();
-      if (scoreData?.eventId === event.scoreboard?.eventId && scoreData.status?.state !== "pre") {
+      if (scoreData && scoreData.eventId === event.scoreboard?.eventId && scoreData.status?.state !== "pre") {
         renderScore(scoreData);
       } else if (delta > 0) {
         setText("game-state-label", "NEXT EVENT");
