@@ -48,6 +48,12 @@ a:hover, a:focus-visible { text-decoration: underline; }
 .topbar span, .eyebrow { color: var(--muted); font-size: 10px; letter-spacing: .09em; }
 .topbar strong { display: block; margin-top: 2px; font: 600 15px var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .clock-block strong { font-size: 20px; }
+.game-state-block strong { font-size: 13px; }
+.game-state-block small { display: block; margin-top: 2px; color: var(--muted); font: 9px var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.game-state-block.live strong { color: var(--text); }
+.game-state-block.live #game-clock { color: var(--green); }
+.game-state-block.stale #game-clock { color: var(--stale); }
+.game-state-block.failed #game-clock { color: var(--red); }
 .system-block small { display: block; margin-top: 2px; color: var(--muted); font-size: 9px; }
 .state.current { color: var(--green); }
 .state.degraded, .state.late { color: var(--yellow); }
