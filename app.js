@@ -8,6 +8,8 @@
   const state = { observations: "loading", forecast: "loading", alerts: "loading", outlooks: "loading", afd: "loading", tropics: "loading", lightning: "loading" };
   let lightningTimer = null;
   let lastLightningData = null;
+  let activeEvent = null;
+  let scoreData = null;
   const $ = (id) => document.getElementById(id);
   const fmtTime = (d, options = {}) => new Intl.DateTimeFormat("en-US", { timeZone: C.stadium.timezone, hour: "numeric", minute: "2-digit", ...options }).format(d);
   const fmtDate = (d) => new Intl.DateTimeFormat("en-US", { timeZone: C.stadium.timezone, weekday: "short", month: "short", day: "numeric", year: "numeric" }).format(d).toUpperCase();
@@ -505,18 +507,87 @@
     }
     const events = Array.isArray(C.events) ? C.events : (C.game ? [C.game] : []);
     const event = events.find((item) => new Date(item.kickoff).getTime() > now.getTime() - 5 * 3600000) || events[events.length - 1];
+    activeEvent = event || null;
     if (event?.kickoff) {
       $("game-date").textContent = event.date || "EVENT DAY";
       $("game-name").textContent = event.opponent ? `${event.label || "FAU"} · FAU vs ${event.opponent}` : (event.label || "FAU EVENT");
       const kickoff = new Date(event.kickoff);
       const delta = kickoff.getTime() - now.getTime();
-      if (delta > 0) {
+      if (scoreData?.eventId === event.scoreboard?.eventId && scoreData.status?.state !== "pre") {
+        renderScore(scoreData);
+      } else if (delta > 0) {
+        $("game-state-label").textContent = "NEXT EVENT";
+        document.querySelector(".game-state-block").className = "game-state-block";
         const days = Math.floor(delta / 86400000);
         const hours = Math.floor((delta % 86400000) / 3600000);
         const minutes = Math.floor((delta % 3600000) / 60000);
         $("game-state").textContent = days > 0 ? `T-${days}D ${hours}H` : `T-${hours}H ${minutes}M`;
-      } else if (delta > -5 * 3600000) $("game-state").textContent = "IN GAME";
-      else $("game-state").textContent = "FINAL";
+        $("game-clock").textContent = "";
+      } else if (delta > -5 * 3600000) {
+        $("game-state-label").textContent = "GAMECAST";
+        $("game-state").textContent = "SCORE UNAVAILABLE";
+        $("game-clock").textContent = "AWAITING REPORTED CLOCK";
+        document.querySelector(".game-state-block").className = "game-state-block failed";
+      } else {
+        $("game-state-label").textContent = "GAME STATUS";
+        $("game-state").textContent = "FINAL";
+        $("game-clock").textContent = "";
+      }
+    }
+  }
+
+  function renderScore(data) {
+    const block = document.querySelector(".game-state-block");
+    const away = data.teams?.find((team) => team.homeAway === "away");
+    const home = data.teams?.find((team) => team.homeAway === "home");
+    const ageSeconds = Math.max(0, Math.floor((Date.now() - Date.parse(data.retrievedAt)) / 1000));
+    const stale = ageSeconds > 90;
+    $("game-state-label").textContent = data.status?.completed ? "FINAL · REPORTED" : "GAMECAST · REPORTED";
+    $("game-state").textContent = away && home
+      ? `${away.abbreviation} ${away.score} · ${home.abbreviation} ${home.score}`
+      : "SCORE UNAVAILABLE";
+    const detail = data.status?.completed ? "FINAL" : (data.status?.detail || "CLOCK UNAVAILABLE");
+    $("game-clock").textContent = `${detail} · ${ageSeconds < 60 ? `${ageSeconds}S` : `${Math.floor(ageSeconds / 60)}M`} OLD`;
+    block.className = `game-state-block ${stale ? "stale" : "live"}`;
+  }
+
+  async function loadScore() {
+    const event = activeEvent;
+    const source = event?.scoreboard;
+    if (!source?.eventId || !source.sport || !source.league || !source.date) return;
+    try {
+      const url = `https://site.api.espn.com/apis/site/v2/sports/${encodeURIComponent(source.sport)}/${encodeURIComponent(source.league)}/scoreboard?dates=${encodeURIComponent(source.date)}&limit=500`;
+      const response = await fetch(url, { headers: { Accept: "application/json" }, cache: "no-store" });
+      if (!response.ok) throw new Error(`Score provider ${response.status}`);
+      const data = await response.json();
+      const game = Array.isArray(data.events) ? data.events.find((item) => item.id === source.eventId) : null;
+      const competition = game?.competitions?.[0];
+      if (!game || !competition) throw new Error("Configured game not found");
+      scoreData = {
+        eventId: game.id,
+        provider: source.provider || "Scoreboard",
+        retrievedAt: new Date().toISOString(),
+        status: {
+          state: game.status?.type?.state || "unknown",
+          completed: Boolean(game.status?.type?.completed),
+          detail: game.status?.type?.state === "in"
+            ? [game.status?.type?.shortDetail, game.status?.displayClock].filter(Boolean).join(" · ")
+            : (game.status?.type?.shortDetail || game.status?.type?.detail || "STATUS UNAVAILABLE")
+        },
+        teams: competition.competitors.map((competitor) => ({
+          homeAway: competitor.homeAway,
+          abbreviation: competitor.team?.abbreviation || competitor.team?.shortDisplayName || "TEAM",
+          score: competitor.score || "0"
+        }))
+      };
+      updateClock();
+    } catch (_) {
+      if (!scoreData && new Date(event.kickoff).getTime() <= Date.now()) {
+        $("game-state-label").textContent = "GAMECAST";
+        $("game-state").textContent = "SCORE UNAVAILABLE";
+        $("game-clock").textContent = "VERIFY STADIUM BOARD";
+        document.querySelector(".game-state-block").className = "game-state-block failed";
+      }
     }
   }
 
@@ -527,13 +598,14 @@
 
   function start() {
     setupStatic(); updateClock(); setInterval(updateClock, 1000);
-    loadObservations(); loadForecast(); loadAlerts(); loadOutlooks(); loadAfd(); loadTropics(); loadLightning();
+    loadObservations(); loadForecast(); loadAlerts(); loadOutlooks(); loadAfd(); loadTropics(); loadLightning(); loadScore();
     setInterval(loadObservations, C.refreshMs.observations);
     setInterval(loadForecast, C.refreshMs.forecast);
     setInterval(loadAlerts, C.refreshMs.alerts);
     setInterval(loadOutlooks, C.refreshMs.outlooks);
     setInterval(loadAfd, C.refreshMs.afd);
     setInterval(loadTropics, C.refreshMs.tropics);
+    setInterval(loadScore, C.refreshMs.scoreboard || 15000);
   }
   start();
 })();
