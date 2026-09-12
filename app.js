@@ -11,6 +11,7 @@
   let activeEvent = null;
   let scoreData = null;
   const $ = (id) => document.getElementById(id);
+  const setText = (id, value) => { const el = $(id); if (el) el.textContent = value; };
   const fmtTime = (d, options = {}) => new Intl.DateTimeFormat("en-US", { timeZone: C.stadium.timezone, hour: "numeric", minute: "2-digit", ...options }).format(d);
   const fmtDate = (d) => new Intl.DateTimeFormat("en-US", { timeZone: C.stadium.timezone, weekday: "short", month: "short", day: "numeric", year: "numeric" }).format(d).toUpperCase();
   const safe = (value, fallback = "—") => value === null || value === undefined || Number.isNaN(value) ? fallback : value;
@@ -516,22 +517,27 @@
       if (scoreData?.eventId === event.scoreboard?.eventId && scoreData.status?.state !== "pre") {
         renderScore(scoreData);
       } else if (delta > 0) {
-        $("game-state-label").textContent = "NEXT EVENT";
+        setText("game-state-label", "NEXT EVENT");
         document.querySelector(".game-state-block").className = "game-state-block";
         const days = Math.floor(delta / 86400000);
         const hours = Math.floor((delta % 86400000) / 3600000);
         const minutes = Math.floor((delta % 3600000) / 60000);
         $("game-state").textContent = days > 0 ? `T-${days}D ${hours}H` : `T-${hours}H ${minutes}M`;
-        $("game-clock").textContent = "";
+        setText("game-clock", "");
+      } else if (delta > -5 * 3600000 && event.scoreboard) {
+        setText("game-state-label", "GAMECAST");
+        setText("game-state", "SCORE UNAVAILABLE");
+        setText("game-clock", "AWAITING REPORTED CLOCK");
+        const block = document.querySelector(".game-state-block");
+        if (block) block.className = "game-state-block failed";
       } else if (delta > -5 * 3600000) {
-        $("game-state-label").textContent = "GAMECAST";
-        $("game-state").textContent = "SCORE UNAVAILABLE";
-        $("game-clock").textContent = "AWAITING REPORTED CLOCK";
-        document.querySelector(".game-state-block").className = "game-state-block failed";
+        setText("game-state-label", "GAME STATUS");
+        setText("game-state", "IN GAME");
+        setText("game-clock", "");
       } else {
-        $("game-state-label").textContent = "GAME STATUS";
-        $("game-state").textContent = "FINAL";
-        $("game-clock").textContent = "";
+        setText("game-state-label", "GAME STATUS");
+        setText("game-state", "FINAL");
+        setText("game-clock", "");
       }
     }
   }
@@ -542,13 +548,13 @@
     const home = data.teams?.find((team) => team.homeAway === "home");
     const ageSeconds = Math.max(0, Math.floor((Date.now() - Date.parse(data.retrievedAt)) / 1000));
     const stale = ageSeconds > 90;
-    $("game-state-label").textContent = data.status?.completed ? "FINAL · REPORTED" : "GAMECAST · REPORTED";
+    setText("game-state-label", data.status?.completed ? "FINAL · REPORTED" : "GAMECAST · REPORTED");
     $("game-state").textContent = away && home
       ? `${away.abbreviation} ${away.score} · ${home.abbreviation} ${home.score}`
       : "SCORE UNAVAILABLE";
     const detail = data.status?.completed ? "FINAL" : (data.status?.detail || "CLOCK UNAVAILABLE");
-    $("game-clock").textContent = `${detail} · ${ageSeconds < 60 ? `${ageSeconds}S` : `${Math.floor(ageSeconds / 60)}M`} OLD`;
-    block.className = `game-state-block ${stale ? "stale" : "live"}`;
+    setText("game-clock", `${detail} · ${ageSeconds < 60 ? `${ageSeconds}S` : `${Math.floor(ageSeconds / 60)}M`} OLD`);
+    if (block) block.className = `game-state-block ${stale ? "stale" : "live"}`;
   }
 
   async function loadScore() {
@@ -583,10 +589,11 @@
       updateClock();
     } catch (_) {
       if (!scoreData && new Date(event.kickoff).getTime() <= Date.now()) {
-        $("game-state-label").textContent = "GAMECAST";
-        $("game-state").textContent = "SCORE UNAVAILABLE";
-        $("game-clock").textContent = "VERIFY STADIUM BOARD";
-        document.querySelector(".game-state-block").className = "game-state-block failed";
+        setText("game-state-label", "GAMECAST");
+        setText("game-state", "SCORE UNAVAILABLE");
+        setText("game-clock", "VERIFY STADIUM BOARD");
+        const block = document.querySelector(".game-state-block");
+        if (block) block.className = "game-state-block failed";
       }
     }
   }
