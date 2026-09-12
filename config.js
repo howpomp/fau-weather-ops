@@ -16,7 +16,14 @@ window.FAU_CONFIG = {
       date: "SAT SEP 12 · 7:30 PM",
       label: "FOOTBALL",
       opponent: "NAVY",
-      kickoff: "2026-09-12T19:30:00-04:00"
+      kickoff: "2026-09-12T19:30:00-04:00",
+      scoreboard: {
+        provider: "ESPN",
+        sport: "football",
+        league: "college-football",
+        date: "20260912",
+        eventId: "401862703"
+      }
     }
   ],
   stations: [
@@ -31,7 +38,8 @@ window.FAU_CONFIG = {
     alerts: 60000,
     outlooks: 300000,
     afd: 300000,
-    tropics: 300000
+    tropics: 300000,
+    scoreboard: 15000
   },
   lightning: {
     allClearMinutes: 30,
