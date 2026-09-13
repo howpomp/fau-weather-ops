@@ -108,6 +108,15 @@ thead th { background: #081019; color: var(--text); font-size: 11px; }
 .lightning-ring strong { color: var(--green); font-size: 15px; }
 .lightning-ring.warning strong { color: var(--red); }
 .lightning-ring.caution strong { color: var(--yellow); }
+/* Emphasize active strike rings without implying unavailable data are clear. */
+.lightning-ops:not(.failed):not(.off-schedule) .lightning-ring.warning {
+  background: rgba(255, 99, 99, .13);
+  box-shadow: inset 3px 0 var(--red);
+}
+.lightning-ops:not(.failed):not(.off-schedule) .lightning-ring.caution {
+  background: rgba(255, 211, 90, .12);
+  box-shadow: inset 3px 0 var(--yellow);
+}
 .lightning-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 9px; border-top: 1px solid var(--line); color: var(--muted); font: 8px var(--mono); }
 .lightning-meta a { flex: 0 0 auto; font-size: 8px; }
 .stadium-alert { padding: 12px; border-bottom: 1px solid var(--line-strong); }
@@ -133,6 +142,19 @@ thead th { background: #081019; color: var(--text); font-size: 11px; }
 .outlook-card.elevated strong { color: var(--orange); }
 .outlook-card.warning strong, .outlook-card.failed strong { color: var(--red); }
 .outlook-card.loading strong { color: var(--blue); }
+/* Day 1 risk is context, so use a quieter highlight than live lightning. */
+.outlook-card.caution, .outlook-card.caution:hover, .outlook-card.caution:focus-visible {
+  background: rgba(255, 211, 90, .08);
+  box-shadow: inset 3px 0 var(--yellow);
+}
+.outlook-card.elevated, .outlook-card.elevated:hover, .outlook-card.elevated:focus-visible {
+  background: rgba(255, 155, 80, .10);
+  box-shadow: inset 3px 0 var(--orange);
+}
+.outlook-card.warning, .outlook-card.warning:hover, .outlook-card.warning:focus-visible {
+  background: rgba(255, 99, 99, .11);
+  box-shadow: inset 3px 0 var(--red);
+}
 .alert-list { flex: 1; min-height: 0; overflow: auto; }
 .alert-item { padding: 10px 12px; border-bottom: 1px solid var(--line); }
 .alert-item strong { display: block; font: 600 13px var(--mono); }
