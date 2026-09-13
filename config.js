@@ -7,22 +7,16 @@ window.FAU_CONFIG = {
   },
   events: [
     {
-      date: "FRI SEP 11 · 7:00 PM",
-      label: "MEN'S SOCCER",
-      opponent: "CHARLOTTE",
-      kickoff: "2026-09-11T19:00:00-04:00"
-    },
-    {
-      date: "SAT SEP 12 · 7:30 PM",
+      date: "SAT SEP 19 · 6:00 PM",
       label: "FOOTBALL",
-      opponent: "NAVY",
-      kickoff: "2026-09-12T19:30:00-04:00",
+      opponent: "FIU",
+      kickoff: "2026-09-19T18:00:00-04:00",
       scoreboard: {
         provider: "ESPN",
         sport: "football",
         league: "college-football",
-        date: "20260912",
-        eventId: "401862703"
+        date: "20260919",
+        eventId: "401862771"
       }
     }
   ],
