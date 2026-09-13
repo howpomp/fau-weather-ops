@@ -17,18 +17,11 @@ const ALL_CLEAR_MINUTES = 30;
 // The Worker, not the browser, enforces when paid lightning requests are allowed.
 const COVERAGE_WINDOWS = [
   {
-    id: "2026-09-11-mens-soccer-charlotte",
-    label: "MEN'S SOCCER · CHARLOTTE",
-    kickoff: "2026-09-11T23:00:00Z",
-    start: "2026-09-11T19:00:00Z",
-    end: "2026-09-12T03:00:00Z",
-  },
-  {
-    id: "2026-09-12-football-navy",
-    label: "FOOTBALL · NAVY",
-    kickoff: "2026-09-12T23:30:00Z",
-    start: "2026-09-12T19:30:00Z",
-    end: "2026-09-13T03:30:00Z",
+    id: "2026-09-19-football-fiu",
+    label: "FOOTBALL · FIU",
+    kickoff: "2026-09-19T22:00:00Z",
+    start: "2026-09-19T18:00:00Z",
+    end: "2026-09-20T02:00:00Z",
   },
 ];
 
