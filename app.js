@@ -499,6 +499,14 @@
     $("last-refresh").textContent = `LAST CHECK ${fmtTime(new Date(), { second: "2-digit" })}`;
   }
 
+  function fmtLocalDay(date) {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: C.stadium.timezone, year: "numeric", month: "2-digit", day: "2-digit"
+    }).formatToParts(date);
+    const part = (type) => parts.find((item) => item.type === type).value;
+    return `${part("year")}-${part("month")}-${part("day")}`;
+  }
+
   function updateClock() {
     const now = new Date();
     $("local-date").textContent = fmtDate(now);
@@ -507,11 +515,22 @@
       renderLightning(lastLightningData);
     }
     const events = Array.isArray(C.events) ? C.events : (C.game ? [C.game] : []);
-    const event = events.find((item) => new Date(item.kickoff).getTime() > now.getTime() - 5 * 3600000) || events[events.length - 1];
+    const event = events.find((item) => {
+      if (item.kickoff) return Date.parse(item.kickoff) > now.getTime() - 5 * 3600000;
+      // TBA games remain upcoming through their local game day without inventing a kickoff.
+      return item.dateKey && item.dateKey >= fmtLocalDay(now);
+    }) || events[events.length - 1];
     activeEvent = event || null;
-    if (event?.kickoff) {
+    if (event) {
       $("game-date").textContent = event.date || "EVENT DAY";
       $("game-name").textContent = event.opponent ? `${event.label || "FAU"} · FAU vs ${event.opponent}` : (event.label || "FAU EVENT");
+      if (!event.kickoff) {
+        setText("game-state-label", "NEXT EVENT");
+        setText("game-state", "KICKOFF TBA");
+        setText("game-clock", "");
+        document.querySelector(".game-state-block").className = "game-state-block";
+        return;
+      }
       const kickoff = new Date(event.kickoff);
       const delta = kickoff.getTime() - now.getTime();
       if (scoreData && scoreData.eventId === event.scoreboard?.eventId && scoreData.status?.state !== "pre") {
