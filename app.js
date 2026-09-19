@@ -362,6 +362,15 @@
     updateSystemState();
   }
 
+  function compassDirection(bearing) {
+    if (bearing == null || bearing === "") return "—";
+    const degrees = Number(String(bearing).replace(/°$/, "").trim());
+    if (!Number.isFinite(degrees)) return String(bearing).toUpperCase();
+    const points = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
+      "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
+    return points[Math.round((((degrees % 360) + 360) % 360) / 22.5) % 16];
+  }
+
   async function loadTropics() {
     try {
       let data;
@@ -387,7 +396,7 @@
         <strong>${safe(s.classification, "SYSTEM")} ${safe(s.name, safe(s.id))}</strong>
         <span><small>LOCATION</small>${safe(s.latitude)} ${safe(s.longitude)}</span>
         <span><small>MAX WIND</small>${safe(s.intensity)} MPH</span>
-        <span><small>MOVEMENT</small>${safe(s.movementDir)} ${safe(s.movementSpeed)} MPH</span>
+        <span><small>MOVEMENT</small>${compassDirection(s.movementDir)} ${safe(s.movementSpeed)} MPH</span>
         <span><small>PRESSURE</small>${safe(s.pressure)} MB</span>
         <span><small>ADVISORY</small>${safe(s.advisoryNumber, safe(s.publicAdvisory?.advNum))}</span>
       </article>`).join("");
