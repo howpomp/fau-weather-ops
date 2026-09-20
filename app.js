@@ -597,6 +597,11 @@
       const game = Array.isArray(data.events) ? data.events.find((item) => item.id === source.eventId) : null;
       const competition = game?.competitions?.[0];
       if (!game || !competition) throw new Error("Configured game not found");
+      const shortDetail = game.status?.type?.shortDetail || "";
+      const displayClock = game.status?.displayClock || "";
+      const liveDetail = shortDetail && displayClock && !shortDetail.includes(displayClock)
+        ? `${shortDetail} · ${displayClock}`
+        : (shortDetail || displayClock || "CLOCK UNAVAILABLE");
       scoreData = {
         eventId: game.id,
         provider: source.provider || "Scoreboard",
@@ -605,7 +610,7 @@
           state: game.status?.type?.state || "unknown",
           completed: Boolean(game.status?.type?.completed),
           detail: game.status?.type?.state === "in"
-            ? [game.status?.type?.shortDetail, game.status?.displayClock].filter(Boolean).join(" · ")
+            ? liveDetail
             : (game.status?.type?.shortDetail || game.status?.type?.detail || "STATUS UNAVAILABLE")
         },
         teams: competition.competitors.map((competitor) => ({
