@@ -7,17 +7,17 @@ window.FAU_CONFIG = {
   },
   events: [
     {
-      date: "SAT SEP 19 · 6:00 PM",
+      date: "SAT OCT 3 · 6:00 PM",
       label: "FOOTBALL",
-      opponent: "FIU",
-      kickoff: "2026-09-19T18:00:00-04:00",
-      scoreboard: {
-        provider: "ESPN",
-        sport: "football",
-        league: "college-football",
-        date: "20260919",
-        eventId: "401862771"
-      }
+      opponent: "TEXAS SOUTHERN",
+      kickoff: "2026-10-03T18:00:00-04:00"
+    },
+    {
+      date: "SAT OCT 24 · KICKOFF TBA",
+      label: "FOOTBALL",
+      opponent: "RICE",
+      dateKey: "2026-10-24",
+      kickoff: null
     }
   ],
   stations: [
@@ -44,10 +44,10 @@ window.FAU_CONFIG = {
   apparentTemperature: { heatIndexAtOrAboveF: 90, windChillAtOrBelowF: 40 },
   trendThresholds: { temperatureF: 2, dewpointF: 2, windMph: 3, gustMph: 3, pressureInHg: 0.03 },
   links: [
-    { label: "DESI", url: "https://desi.weather.gov/" },
+    { label: "GOES GLM", url: "https://www.star.nesdis.noaa.gov/GOES/sector_band.php?sat=G19&sector=se&band=EXTENT3&length=12&src=nav" },
     { label: "MFL", url: "https://www.weather.gov/mfl/" },
     { label: "SATELLITE", url: "https://www.star.nesdis.noaa.gov/GOES/sector.php?sat=G19&sector=se" },
-    { label: "HRRR", url: "https://www.weather.gov/mdl/hrrr" },
+    { label: "VISIBLE", url: "https://www.star.nesdis.noaa.gov/GOES/sector_band.php?sat=G19&sector=se&band=GEOCOLOR&length=12&dim=1" },
     { label: "SPC", url: "https://www.spc.noaa.gov/" },
     { label: "NHC", url: "https://www.nhc.noaa.gov/" },
     { label: "WEATHER.IM", url: "https://weather.im/" },

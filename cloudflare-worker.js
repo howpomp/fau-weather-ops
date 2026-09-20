@@ -23,6 +23,14 @@ const COVERAGE_WINDOWS = [
     start: "2026-09-19T18:00:00Z",
     end: "2026-09-20T02:00:00Z",
   },
+  {
+    id: "2026-10-03-football-texas-southern",
+    label: "FOOTBALL · TEXAS SOUTHERN",
+    kickoff: "2026-10-03T22:00:00Z",
+    start: "2026-10-03T18:00:00Z",
+    end: "2026-10-04T02:00:00Z",
+  },
+  // Rice on October 24: add a coverage window when FAU confirms the kickoff.
 ];
 
 const corsHeaders = {

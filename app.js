@@ -362,6 +362,15 @@
     updateSystemState();
   }
 
+  function compassDirection(bearing) {
+    if (bearing == null || bearing === "") return "—";
+    const degrees = Number(String(bearing).replace(/°$/, "").trim());
+    if (!Number.isFinite(degrees)) return String(bearing).toUpperCase();
+    const points = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
+      "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
+    return points[Math.round((((degrees % 360) + 360) % 360) / 22.5) % 16];
+  }
+
   async function loadTropics() {
     try {
       let data;
@@ -387,7 +396,7 @@
         <strong>${safe(s.classification, "SYSTEM")} ${safe(s.name, safe(s.id))}</strong>
         <span><small>LOCATION</small>${safe(s.latitude)} ${safe(s.longitude)}</span>
         <span><small>MAX WIND</small>${safe(s.intensity)} MPH</span>
-        <span><small>MOVEMENT</small>${safe(s.movementDir)} ${safe(s.movementSpeed)} MPH</span>
+        <span><small>MOVEMENT</small>${compassDirection(s.movementDir)} ${safe(s.movementSpeed)} MPH</span>
         <span><small>PRESSURE</small>${safe(s.pressure)} MB</span>
         <span><small>ADVISORY</small>${safe(s.advisoryNumber, safe(s.publicAdvisory?.advNum))}</span>
       </article>`).join("");
@@ -499,6 +508,14 @@
     $("last-refresh").textContent = `LAST CHECK ${fmtTime(new Date(), { second: "2-digit" })}`;
   }
 
+  function fmtLocalDay(date) {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: C.stadium.timezone, year: "numeric", month: "2-digit", day: "2-digit"
+    }).formatToParts(date);
+    const part = (type) => parts.find((item) => item.type === type).value;
+    return `${part("year")}-${part("month")}-${part("day")}`;
+  }
+
   function updateClock() {
     const now = new Date();
     $("local-date").textContent = fmtDate(now);
@@ -507,11 +524,22 @@
       renderLightning(lastLightningData);
     }
     const events = Array.isArray(C.events) ? C.events : (C.game ? [C.game] : []);
-    const event = events.find((item) => new Date(item.kickoff).getTime() > now.getTime() - 5 * 3600000) || events[events.length - 1];
+    const event = events.find((item) => {
+      if (item.kickoff) return Date.parse(item.kickoff) > now.getTime() - 5 * 3600000;
+      // TBA games remain upcoming through their local game day without inventing a kickoff.
+      return item.dateKey && item.dateKey >= fmtLocalDay(now);
+    }) || events[events.length - 1];
     activeEvent = event || null;
-    if (event?.kickoff) {
+    if (event) {
       $("game-date").textContent = event.date || "EVENT DAY";
       $("game-name").textContent = event.opponent ? `${event.label || "FAU"} · FAU vs ${event.opponent}` : (event.label || "FAU EVENT");
+      if (!event.kickoff) {
+        setText("game-state-label", "NEXT EVENT");
+        setText("game-state", "KICKOFF TBA");
+        setText("game-clock", "");
+        document.querySelector(".game-state-block").className = "game-state-block";
+        return;
+      }
       const kickoff = new Date(event.kickoff);
       const delta = kickoff.getTime() - now.getTime();
       if (scoreData && scoreData.eventId === event.scoreboard?.eventId && scoreData.status?.state !== "pre") {
@@ -569,6 +597,11 @@
       const game = Array.isArray(data.events) ? data.events.find((item) => item.id === source.eventId) : null;
       const competition = game?.competitions?.[0];
       if (!game || !competition) throw new Error("Configured game not found");
+      const shortDetail = game.status?.type?.shortDetail || "";
+      const displayClock = game.status?.displayClock || "";
+      const liveDetail = shortDetail && displayClock && !shortDetail.includes(displayClock)
+        ? `${shortDetail} · ${displayClock}`
+        : (shortDetail || displayClock || "CLOCK UNAVAILABLE");
       scoreData = {
         eventId: game.id,
         provider: source.provider || "Scoreboard",
@@ -577,7 +610,7 @@
           state: game.status?.type?.state || "unknown",
           completed: Boolean(game.status?.type?.completed),
           detail: game.status?.type?.state === "in"
-            ? [game.status?.type?.shortDetail, game.status?.displayClock].filter(Boolean).join(" · ")
+            ? liveDetail
             : (game.status?.type?.shortDetail || game.status?.type?.detail || "STATUS UNAVAILABLE")
         },
         teams: competition.competitors.map((competitor) => ({
