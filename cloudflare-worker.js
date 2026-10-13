@@ -30,7 +30,13 @@ const COVERAGE_WINDOWS = [
     start: "2026-10-03T18:00:00Z",
     end: "2026-10-04T02:00:00Z",
   },
-  // Rice on October 24: add a coverage window when FAU confirms the kickoff.
+  {
+    id: "2026-10-24-football-rice",
+    label: "FOOTBALL · RICE",
+    kickoff: "2026-10-24T16:00:00Z",
+    start: "2026-10-24T12:00:00Z",
+    end: "2026-10-24T20:00:00Z",
+  },
 ];
 
 const corsHeaders = {
