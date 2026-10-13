@@ -20,11 +20,17 @@ window.FAU_CONFIG = {
       }
     },
     {
-      date: "SAT OCT 24 · KICKOFF TBA",
+      date: "SAT OCT 24 · 12:00 PM",
       label: "FOOTBALL",
       opponent: "RICE",
-      dateKey: "2026-10-24",
-      kickoff: null
+      kickoff: "2026-10-24T12:00:00-04:00",
+      scoreboard: {
+        provider: "ESPN",
+        sport: "football",
+        league: "college-football",
+        date: "20261024",
+        eventId: "401862809"
+      }
     }
   ],
   stations: [
