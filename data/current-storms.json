@@ -109,15 +109,15 @@
       "binNumber": "EP5",
       "name": "Simon",
       "classification": "HU",
-      "intensity": "80",
-      "pressure": "977",
-      "latitude": "20.2N",
-      "longitude": "107.4W",
-      "latitudeNumeric": 20.2,
-      "longitudeNumeric": -107.4,
+      "intensity": "95",
+      "pressure": "965",
+      "latitude": "20.1N",
+      "longitude": "107.5W",
+      "latitudeNumeric": 20.1,
+      "longitudeNumeric": -107.5,
       "movementDir": 260,
       "movementSpeed": 2,
-      "lastUpdate": "2026-10-14T00:00:00.000Z",
+      "lastUpdate": "2026-10-14T01:50:00.000Z",
       "publicAdvisory": {
         "advNum": "026a",
         "issuance": "2026-10-14T00:00:00.000Z",
@@ -215,5 +215,5 @@
       "peakSurgeKML": null
     }
   ],
-  "_fetchedAt": "2026-10-13T23:48:07.823836+00:00"
+  "_fetchedAt": "2026-10-14T02:12:58.108523+00:00"
 }
