@@ -244,11 +244,14 @@
   }
 
   const alertPriority = ["Tornado Warning", "Severe Thunderstorm Warning", "Flash Flood Warning", "Tornado Watch", "Severe Thunderstorm Watch", "Special Weather Statement"];
+  const excludedAlertEvents = /^(?:Rip Current Statement|High Surf (?:Advisory|Warning)|Beach Hazards Statement|Small Craft Advisory|Special Marine Warning|Marine Weather Statement|Gale (?:Watch|Warning)|Hazardous Seas (?:Watch|Warning)|Storm Warning)$/i;
   function priority(event) { const i = alertPriority.indexOf(event); return i < 0 ? 99 : i; }
   async function loadAlerts() {
     try {
       const data = await request(`${API}/alerts/active?point=${C.stadium.latitude},${C.stadium.longitude}`);
-      const alerts = (data.features || []).sort((a, b) => priority(a.properties.event) - priority(b.properties.event));
+      const alerts = (data.features || [])
+        .filter((feature) => !excludedAlertEvents.test(String(feature?.properties?.event || "")))
+        .sort((a, b) => priority(a.properties.event) - priority(b.properties.event));
       const primary = alerts[0]?.properties;
       const box = $("stadium-alert");
       box.className = "stadium-alert";
