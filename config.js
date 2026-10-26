@@ -7,30 +7,24 @@ window.FAU_CONFIG = {
   },
   events: [
     {
-      date: "SAT OCT 3 · 6:00 PM",
+      date: "THU NOV 5 · 7:30 PM",
       label: "FOOTBALL",
-      opponent: "TEXAS SOUTHERN",
-      kickoff: "2026-10-03T18:00:00-04:00",
+      opponent: "UTSA",
+      kickoff: "2026-11-05T19:30:00-05:00",
       scoreboard: {
         provider: "ESPN",
         sport: "football",
         league: "college-football",
-        date: "20261003",
-        eventId: "401862790"
+        date: "20261105",
+        eventId: "401862817"
       }
     },
     {
-      date: "SAT OCT 24 · 12:00 PM",
+      date: "SAT NOV 21 · KICKOFF TBA",
       label: "FOOTBALL",
-      opponent: "RICE",
-      kickoff: "2026-10-24T12:00:00-04:00",
-      scoreboard: {
-        provider: "ESPN",
-        sport: "football",
-        league: "college-football",
-        date: "20261024",
-        eventId: "401862809"
-      }
+      opponent: "SOUTH FLORIDA",
+      dateKey: "2026-11-21",
+      kickoff: null
     }
   ],
   stations: [
