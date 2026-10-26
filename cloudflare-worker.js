@@ -37,6 +37,14 @@ const COVERAGE_WINDOWS = [
     start: "2026-10-24T12:00:00Z",
     end: "2026-10-24T20:00:00Z",
   },
+  {
+    id: "2026-11-05-football-utsa",
+    label: "FOOTBALL · UTSA",
+    kickoff: "2026-11-06T00:30:00Z",
+    start: "2026-11-05T20:30:00Z",
+    end: "2026-11-06T04:30:00Z",
+  },
+  // South Florida on November 21: add coverage after the kickoff is announced.
 ];
 
 const corsHeaders = {
