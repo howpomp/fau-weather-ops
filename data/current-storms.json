@@ -47,7 +47,7 @@
       "forecastTrack": {
         "advNum": "034",
         "issuance": "2026-10-29T21:00:00.000Z",
-        "fileUpdateTime": "2026-10-29T20:33:22.551Z",
+        "fileUpdateTime": "2026-10-29T20:49:17.097Z",
         "zipFile": "https://www.nhc.noaa.gov/gis/forecast/archive/ep222026_5day_034.zip",
         "kmzFile": "https://www.nhc.noaa.gov/storm_graphics/api/EP222026_034adv_TRACK.kmz"
       },
@@ -55,55 +55,55 @@
       "trackCone": {
         "advNum": "034",
         "issuance": "2026-10-29T21:00:00.000Z",
-        "fileUpdateTime": "2026-10-29T20:33:16.893Z",
+        "fileUpdateTime": "2026-10-29T20:49:11.204Z",
         "zipFile": "https://www.nhc.noaa.gov/gis/forecast/archive/ep222026_5day_034.zip",
         "kmzFile": "https://www.nhc.noaa.gov/storm_graphics/api/EP222026_034adv_CONE.kmz"
       },
       "initialWindExtent": {
         "advNum": "034",
         "issuance": "2026-10-29T21:00:00.000Z",
-        "fileUpdateTime": "2026-10-29T20:33:51.545Z",
+        "fileUpdateTime": "2026-10-29T20:49:46.325Z",
         "zipFile": "https://www.nhc.noaa.gov/gis/forecast/archive/ep222026_fcst_034.zip",
         "kmzFile": "https://www.nhc.noaa.gov/storm_graphics/api/EP222026_initialradii_034adv.kmz"
       },
       "forecastWindRadiiGIS": {
         "advNum": "034",
         "issuance": "2026-10-29T21:00:00.000Z",
-        "fileUpdateTime": "2026-10-29T20:33:47.747Z",
+        "fileUpdateTime": "2026-10-29T20:49:42.481Z",
         "zipFile": "https://www.nhc.noaa.gov/gis/forecast/archive/ep222026_fcst_034.zip",
         "kmzFile": "https://www.nhc.noaa.gov/storm_graphics/api/EP222026_forecastradii_034adv.kmz"
       },
       "bestTrackGIS": {
         "issuance": "2026-10-29T21:00:00.000Z",
-        "fileUpdateTime": "2026-10-29T20:33:31.770Z",
+        "fileUpdateTime": "2026-10-29T20:49:26.427Z",
         "zipFile": "https://www.nhc.noaa.gov/gis/best_track/ep222026_best_track.zip",
         "kmzFile": "https://www.nhc.noaa.gov/gis/best_track/ep222026_best_track.kmz"
       },
       "earliestArrivalTimeTSWindsGIS": {
         "advNum": "034",
         "issuance": "2026-10-29T21:00:00.000Z",
-        "fileUpdateTime": "2026-10-29T20:33:18.795Z",
+        "fileUpdateTime": "2026-10-29T20:49:13.221Z",
         "kmzFile": "https://www.nhc.noaa.gov/storm_graphics/api/EP222026_034adv_earliest_reasonable_toa_34.kmz"
       },
       "mostLikelyTimeTSWindsGIS": {
         "advNum": "034",
         "issuance": "2026-10-29T21:00:00.000Z",
-        "fileUpdateTime": "2026-10-29T20:33:20.676Z",
+        "fileUpdateTime": "2026-10-29T20:49:15.179Z",
         "kmzFile": "https://www.nhc.noaa.gov/storm_graphics/api/EP222026_034adv_most_likely_toa_34.kmz"
       },
       "windSpeedProbabilitiesGIS": {
-        "issuance": "2026-10-29T12:00:00.000Z",
-        "fileUpdateTime": "2026-10-29T15:23:26.875Z",
-        "zipFile5km": "https://www.nhc.noaa.gov/gis/forecast/archive/2026102912_wsp_120hr5km.zip",
-        "zipFile0p5deg": "https://www.nhc.noaa.gov/gis/forecast/archive/2026102912_wsp_120hrhalfDeg.zip",
-        "kmzFile34kt": "https://www.nhc.noaa.gov/gis/forecast/archive/2026102912_wsp34knt120hr_5km.kmz",
-        "kmzFile50kt": "https://www.nhc.noaa.gov/gis/forecast/archive/2026102912_wsp50knt120hr_5km.kmz",
-        "kmzFile64kt": "https://www.nhc.noaa.gov/gis/forecast/archive/2026102912_wsp64knt120hr_5km.kmz"
+        "issuance": "2026-10-29T18:00:00.000Z",
+        "fileUpdateTime": "2026-10-29T21:22:48.404Z",
+        "zipFile5km": "https://www.nhc.noaa.gov/gis/forecast/archive/2026102918_wsp_120hr5km.zip",
+        "zipFile0p5deg": "https://www.nhc.noaa.gov/gis/forecast/archive/2026102918_wsp_120hrhalfDeg.zip",
+        "kmzFile34kt": "https://www.nhc.noaa.gov/gis/forecast/archive/2026102918_wsp34knt120hr_5km.kmz",
+        "kmzFile50kt": "https://www.nhc.noaa.gov/gis/forecast/archive/2026102918_wsp50knt120hr_5km.kmz",
+        "kmzFile64kt": "https://www.nhc.noaa.gov/gis/forecast/archive/2026102918_wsp64knt120hr_5km.kmz"
       },
       "stormSurgeWatchWarningGIS": null,
       "potentialStormSurgeFloodingGIS": null,
       "peakSurgeKML": null
     }
   ],
-  "_fetchedAt": "2026-10-29T20:36:52.116761+00:00"
+  "_fetchedAt": "2026-10-30T00:21:19.627248+00:00"
 }
