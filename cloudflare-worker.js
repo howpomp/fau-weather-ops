@@ -44,7 +44,14 @@ const COVERAGE_WINDOWS = [
     start: "2026-11-05T20:30:00Z",
     end: "2026-11-06T04:30:00Z",
   },
-  // South Florida on November 21: add coverage after the kickoff is announced.
+  {
+    id: "2026-11-21-football-south-florida",
+    label: "FOOTBALL · SOUTH FLORIDA",
+    kickoff: "2026-11-21T19:30:00Z",
+    start: "2026-11-21T15:30:00Z",
+    end: "2026-11-21T23:30:00Z",
+  },
+  // December 5: add coverage only after the event details are official.
 ];
 
 const corsHeaders = {
