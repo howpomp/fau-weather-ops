@@ -279,9 +279,9 @@
     updateSystemState();
   }
 
-  function setOutlook(id, label, level) {
+  function setOutlook(id, label, level, category = "") {
     const card = $(id);
-    card.className = `outlook-card ${level}`;
+    card.className = ["outlook-card", level, category].filter(Boolean).join(" ");
     card.querySelector("strong").textContent = label;
   }
 
@@ -296,9 +296,17 @@
         .map((item) => item.attributes || {})
         .sort((a, b) => Number(b.dn || 0) - Number(a.dn || 0))[0];
       const code = Number(feature?.dn || 0);
-      const labels = { 2: "GENERAL TSTMS", 3: "MARGINAL", 4: "SLIGHT", 5: "ENHANCED", 6: "MODERATE", 8: "HIGH" };
+      const categories = {
+        2: { label: "GENERAL TSTMS", className: "spc-tstm" },
+        3: { label: "MARGINAL", className: "spc-mrgl" },
+        4: { label: "SLIGHT", className: "spc-slgt" },
+        5: { label: "ENHANCED", className: "spc-enh" },
+        6: { label: "MODERATE", className: "spc-mdt" },
+        8: { label: "HIGH", className: "spc-high" }
+      };
+      const category = categories[code];
       const level = code >= 6 ? "warning" : code >= 4 ? "elevated" : code === 3 ? "caution" : "clear";
-      setOutlook("spc-outlook", labels[code] || "NONE", level);
+      setOutlook("spc-outlook", category?.label || "NONE", level, category?.className || "");
     } else setOutlook("spc-outlook", "UNAVAILABLE", "failed");
 
     if (eroResult.status === "fulfilled") {
@@ -306,9 +314,15 @@
         .map((item) => item.attributes || {})
         .sort((a, b) => Number(b.dn || 0) - Number(a.dn || 0))[0];
       const code = Number(feature?.dn || 0);
-      const labels = { 1: "MARGINAL", 2: "SLIGHT", 3: "MODERATE", 4: "HIGH" };
+      const categories = {
+        1: { label: "MARGINAL", className: "ero-mrgl" },
+        2: { label: "SLIGHT", className: "ero-slgt" },
+        3: { label: "MODERATE", className: "ero-mdt" },
+        4: { label: "HIGH", className: "ero-high" }
+      };
+      const category = categories[code];
       const level = code >= 3 ? "warning" : code === 2 ? "elevated" : code === 1 ? "caution" : "clear";
-      setOutlook("ero-outlook", labels[code] || "NOT EXPECTED", level);
+      setOutlook("ero-outlook", category?.label || "NOT EXPECTED", level, category?.className || "");
     } else setOutlook("ero-outlook", "UNAVAILABLE", "failed");
 
     const failures = [spcResult, eroResult].filter((result) => result.status === "rejected").length;
@@ -425,12 +439,14 @@
     const status = $("lightning-status");
     const ring8 = $("lightning-ring-8");
     const ring15 = $("lightning-ring-15");
+    const clearCell = $("lightning-clear")?.closest(".lightning-detail");
     const count8 = Number(data?.counts?.within8Miles || 0);
     const count15 = Number(data?.counts?.from8To15Miles || 0);
     const usage = Number(data?.usage?.accesses || 0).toLocaleString();
     const limit = Number(data?.usage?.safetyLimit || 14500).toLocaleString();
 
     panel.className = "lightning-ops";
+    if (clearCell) clearCell.className = "lightning-detail";
     ring8.className = `lightning-ring${count8 ? " warning" : ""}`;
     ring15.className = `lightning-ring${count15 ? " caution" : ""}`;
     ring8.querySelector("strong").textContent = data.counts ? String(count8) : "—";
@@ -471,6 +487,7 @@
       $("lightning-clear").textContent = remaining
         ? `${String(Math.floor(remaining / 60)).padStart(2, "0")}:${String(remaining % 60).padStart(2, "0")}`
         : "ELIGIBLE";
+      if (remaining) clearCell?.classList.add("countdown");
     } else {
       $("lightning-clear").textContent = "NO 8-MI STRIKES";
     }
